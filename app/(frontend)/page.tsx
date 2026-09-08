@@ -1,4 +1,6 @@
+import Footer from "@/components/core/Footer";
 import About from "@/components/core/Home/About";
+import Faqs from "@/components/core/Home/Faq";
 import FeaturedVideos from "@/components/core/Home/FeatureVideos";
 import Hero from "@/components/core/Home/Hero";
 import Listerners from "@/components/core/Home/Listeners";
@@ -13,6 +15,8 @@ export default function Home() {
       <Metrics />
       <About />
       <Listerners />
+      <Faqs />
+      <Footer />
     </>
   );
 }

@@ -1,55 +1,6 @@
+"use client";
 import AnimatedDotText from "@/components/common/AnimateDot";
-
-// import { Card, CardContent } from "@/components/ui/card";
-// import { Marquee } from "@/components/ui/marquee-01-utils/marquee";
-
-// const reviews = [
-//     {
-//         name: "Ken Masters",
-//         username: "@kmasters",
-//         body: "“Our productivity has nearly doubled since onboarding. Automation features removed repetitive tasks, allowing our team to focus on building instead of managing operations.”",
-//         profile: "https://images.shadcnspace.com/assets/profiles/rough.webp",
-//     },
-//     {
-//         name: "Kira Athrun",
-//         username: "@kathrun",
-//         body: "“What surprised us most was how quickly our team adapted. Minimal learning curve, excellent documentation, and powerful features make it a must-have for modern SaaS companies.”",
-//         profile: "https://images.shadcnspace.com/assets/profiles/albert.webp",
-//     },
-//     {
-//         name: "Lirael Nassun",
-//         username: "@lnassun",
-//         body: "“This is easily one of the most reliable SaaS tools we’ve adopted. The UI is intuitive, integrations are seamless, and it saves us countless hours every week.”",
-//         profile: "https://images.shadcnspace.com/assets/profiles/linda.webp",
-//     },
-//     {
-//         name: "Jessica",
-//         username: "@jessica",
-//         body: "Switching to this platform streamlined our entire workflow. Setup was effortless, performance improved instantly, and our team now ships features faster without worrying about infrastructure.",
-//         profile: "https://images.shadcnspace.com/assets/profiles/jessica.webp",
-//     },
-//     {
-//         name: "Jenny",
-//         username: "@jenny",
-//         body: "“We evaluated multiple solutions, but this stood out immediately. It’s fast, scalable, and thoughtfully designed for growing teams that need stability without added complexity.”",
-//         profile: "https://images.shadcnspace.com/assets/profiles/jenny.webp",
-//     },
-//     {
-//         name: "Kira Athrun",
-//         username: "@kathrun",
-//         body: "“What surprised us most was how quickly our team adapted. Minimal learning curve, excellent documentation, and powerful features make it a must-have for modern SaaS companies.”",
-//         profile: "https://images.shadcnspace.com/assets/profiles/albert.webp",
-//     },
-//     {
-//         name: "Ken Masters",
-//         username: "@kmasters",
-//         body: "“Our productivity has nearly doubled since onboarding. Automation features removed repetitive tasks, allowing our team to focus on building instead of managing operations.”",
-//         profile: "https://images.shadcnspace.com/assets/profiles/rough.webp",
-//     },
-// ];
-
-// const firstRow = reviews.slice(0, reviews.length / 2);
-// const secondRow = reviews.slice(reviews.length / 2);
+import Image from "next/image";
 
 export default function Listerners() {
     return (
@@ -67,6 +18,10 @@ export default function Listerners() {
 
             </div>
 
+            <div>
+                <TestimonialsMarquee />
+            </div>
+
 
 
         </div>
@@ -75,57 +30,128 @@ export default function Listerners() {
 
 
 
+const testimonials = [
+    {
+        name: "Sofía Torres",
+        image: "/testimonials/testimonials_01.jpg",
+        text: "I LOVE HOW THE SHOW MAKES HISTORICAL TOPICS FEEL INTERESTING WITHOUT BEING OVERWHELMING.",
+    },
+    {
+        name: "Laura Méndez",
+        image: "/testimonials/testimonials_02.jpg",
+        text: "THE STORYTELLING IS THOUGHTFUL, WELL-PACED, AND GENUINELY ENJOYABLE.",
+    },
+    {
+        name: "Carlos Rivera",
+        image: "/testimonials/testimonials_03.jpg",
+        text: "A PERFECT BALANCE OF FACTS, CONTEXT, AND NARRATIVE.",
+    },
+    {
+        name: "Daniel Costa",
+        image: "/testimonials/testimonials_04.jpg",
+        text: "I ALWAYS LEARN SOMETHING NEW WHEN I LISTEN.",
+    },
+    {
+        name: "Valentina Ruiz",
+        image: "/testimonials/testimonials_02.jpg",
+        text: "ONE OF THE MOST APPROACHABLE HISTORY PODCASTS I'VE FOUND.",
+    },
+];
 
-// const ReviewCard = ({
-//     profile,
-//     name,
-//     username,
-//     body,
-// }: {
-//     profile: string;
-//     name: string;
-//     username: string;
-//     body: string;
-// }) => {
-//     return (
-//         <Card className="relative h-full w-64 cursor-pointer overflow-hidden border-border bg-card shadow-none p-4">
-//             <CardContent className="p-0 flex flex-col gap-2">
-//                 <div className="flex flex-row items-center gap-2">
-//                     <img
-//                         className="rounded-full"
-//                         width="32"
-//                         height="32"
-//                         alt=""
-//                         src={profile}
-//                     />
-//                     <div className="flex flex-col">
-//                         <p className="text-sm font-medium text-foreground">{name}</p>
-//                         <p className="text-xs font-medium text-muted-foreground">
-//                             {username}
-//                         </p>
-//                     </div>
-//                 </div>
-//                 <p className="text-sm line-clamp-2 text-foreground">{body}</p>
-//             </CardContent>
-//         </Card>
-//     );
-// };
+function TestimonialCard({
+    testimonial,
+}: {
+    testimonial: (typeof testimonials)[number];
+}) {
+    return (
+        <div className="group flex  h-45 w-[590px] shrink-0 flex-col justify-between border border-white/30 bg-black p-6 transition-colors duration-300 hover:border-white/60">
 
-// export function TestimonialMarqueeDemo() {
-//     return (
-//         <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
-//             <Marquee pauseOnHover className="[--duration:20s]">
-//                 {firstRow.map((review) => (
-//                     <ReviewCard key={review.username} {...review} />
-//                 ))}
-//             </Marquee>
-//             <Marquee reverse pauseOnHover className="[--duration:20s]">
-//                 {secondRow.map((review) => (
-//                     <ReviewCard key={review.username} {...review} />
-//                 ))}
-//             </Marquee>
-//             <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r"></div>
-//             <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l"></div>
-//         </div>
-//     );
-// }
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="relative h-14 w-14 overflow-hidden rounded-full">
+                        <Image
+                            src={testimonial.image}
+                            alt={testimonial.name}
+                            fill
+                            className="object-cover"
+                        />
+                    </div>
+
+                    <h3 className="font-mono text-[16px] font-semibold text-white">
+                        {testimonial.name}
+                    </h3>
+                </div>
+
+
+                <div className="flex h-12 w-12 items-center justify-center border border-white/20">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        className="h-6 w-6 text-white"
+                    >
+                        <rect x="3" y="5" width="18" height="14" rx="4" />
+                        <path d="M10 9l5 3-5 3V9z" fill="currentColor" />
+                    </svg>
+                </div>
+            </div>
+
+
+            <p className="max-w-130 font-mono text-[16px] font-semibold leading-normal text-white">
+                "{testimonial.text}"
+            </p>
+        </div>
+    );
+}
+
+export function TestimonialsMarquee() {
+    return (
+        <section className="relative w-full overflow-hidden bg-black py-10">
+
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-32 bg-linear-to-r from-black to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-32 bg-linear-to-l from-black to-transparent" />
+
+
+            <div className="marquee-wrapper mb-5">
+                <div className="marquee marquee-left">
+
+                    {testimonials.map((testimonial, index) => (
+                        <TestimonialCard
+                            key={`row1-${index}`}
+                            testimonial={testimonial}
+                        />
+                    ))}
+
+                    {testimonials.map((testimonial, index) => (
+                        <TestimonialCard
+                            key={`row1-copy-${index}`}
+                            testimonial={testimonial}
+                        />
+                    ))}
+                </div>
+            </div>
+
+
+            <div className="marquee-wrapper">
+                <div className="marquee marquee-right">
+
+                    {testimonials.map((testimonial, index) => (
+                        <TestimonialCard
+                            key={`row2-${index}`}
+                            testimonial={testimonial}
+                        />
+                    ))}
+
+
+                    {testimonials.map((testimonial, index) => (
+                        <TestimonialCard
+                            key={`row2-copy-${index}`}
+                            testimonial={testimonial}
+                        />
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Chivo_Mono } from "next/font/google"
 import Navbar from "@/components/core/Navbar";
+import SmoothScroll from "@/components/common/SmoothScroll";
+import Footer from "@/components/core/Footer";
 
 
 const geistSans = Geist({
@@ -19,8 +21,8 @@ const chivoMono = Chivo_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Your Website",
-    description: "Your website description",
+    title: "Harsh Bhosale - YouTube",
+    description: "Stories that deserves a closer look",
 };
 
 export default function RootLayout({
@@ -35,8 +37,11 @@ export default function RootLayout({
         >
 
             <body className="min-h-full flex flex-col">
+
                 <Navbar />
-                {children}
+                <SmoothScroll>
+                    {children}
+                </SmoothScroll>
             </body>
         </html>
     );
