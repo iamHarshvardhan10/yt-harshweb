@@ -5,7 +5,7 @@ import AnimatedDotText from "@/components/common/AnimateDot";
 
 export default function Faqs() {
     return (
-        <div className="min-h-screen relative">
+        <div className="min-h-screen relative bg-background">
             <div className="flex flex-col items-center justify-center mt-30">
                 <AnimatedDotText text="FAQS" className="mb-2" />
                 <h2 className="uppercase text-4xl w-full text-center">Got Questions?</h2>

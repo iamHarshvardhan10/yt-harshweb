@@ -3,7 +3,7 @@ import Image from "next/image"
 
 export default function About() {
     return (
-        <div className="flex items-center justify-center flex-col text-center py-20">
+        <div className="flex items-center justify-center flex-col text-center py-20 bg-background">
             <AnimatedDotText text="About Us" />
             <h3 className="text-[44px] uppercase">About the Videos</h3>
             <p className="w-[40%] uppercase text-[#c9c9c9]">A history podcast that explores the people, events, and moments that shaped the world we know today.</p>

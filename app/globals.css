@@ -57,9 +57,7 @@ body {
   margin: 0;
 }
 
-html {
-  scroll-behavior: auto;
-}
+
 
 
 @theme {
@@ -95,45 +93,7 @@ html {
   }
 }
 
-.glow-button {
-  position: relative;
-  overflow: hidden;
-  border-radius: 50px;
-  background: transparent;
-  backdrop-filter: blur(5px);
-}
 
-.glow-button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(100.6% 15% at 50% 100%, #ffffffe6 0%, #fff0 100%);
-  opacity: 0.8;
-}
-
-/* 
-.glow-button::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -35px;
-  width: 100%;
-  height: 30px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  filter: blur(25px);
-  transition: all 0.5s ease;
-}
-
-.glow-button:hover::after {
-  width: 180px;
-  height: 80px;
-  opacity: 0.8;
-} */
-/* 
----break--- */
 :root {
   --background: #000000;
   /* --background: oklch(1 0 0); */

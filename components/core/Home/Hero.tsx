@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Hero() {
     return (
-        <section className="min-h-screen relative  px-20 bg-cover bg-center bg-no-repeat after:content-[''] after:absolute after:inset-x-10 after:bottom-0 after:right-0 after:h-50 after:bg-linear-to-t  after:from-black after:via-black/70 after:to-transparent after:pointer-events-none"
+        <section className="bg-background min-h-screen relative  px-20 bg-cover bg-center bg-no-repeat after:content-[''] after:absolute after:inset-x-10 after:bottom-0 after:right-0 after:h-50 after:bg-linear-to-t  after:from-black after:via-black/70 after:to-transparent after:pointer-events-none"
             style={{ backgroundImage: "url('/hero.webp')" }}>
             <div className="absolute left-20 w-[50%] top-60">
                 <AnimatedDotText text="New Videos" className="justify-center mb-4" textClassName="font-light uppercase text-center  text-sm" />
