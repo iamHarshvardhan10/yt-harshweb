@@ -6,7 +6,7 @@ import AnimatedDotText from "@/components/common/AnimateDot";
 
 export default function FeaturedVideos() {
     return (
-        <div className="min-h-screen relative bg-background">
+        <div className="min-h-screen relative bg-background text-white">
             <div className="flex flex-col items-center justify-center mt-30">
                 <AnimatedDotText text="Featured Vidoes" className="mb-2" />
                 <h2 className="uppercase text-4xl w-[30%] text-center">Explore the videos available on the site</h2>

@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 export default function ContactUs() {
     return (
-        <div className="min-h-screen relative bg-background">
+        <div className="min-h-screen relative bg-background text-white">
             <div className="flex flex-col items-center justify-center mt-30">
                 <AnimatedDotText text="Contact" className="mb-2" />
                 <h2 className="uppercase text-4xl w-full text-center">Let's Connect</h2>

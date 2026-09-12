@@ -4,7 +4,7 @@ import Image from "next/image";
 
 export default function Listerners() {
     return (
-        <div className="px-26.5 bg-background">
+        <div className="px-26.5 bg-background text-white">
             <div className="flex items-center justify-between w-full">
                 <div className="flex flex-col w-[50%]">
                     <AnimatedDotText text="reviews" />

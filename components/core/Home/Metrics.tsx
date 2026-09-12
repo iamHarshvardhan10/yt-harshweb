@@ -3,7 +3,7 @@ import AnimatedDotText from "@/components/common/AnimateDot";
 
 export default function Metrics() {
     return (
-        <div className="bg-background">
+        <div className="bg-background text-white">
             <div className="flex flex-col gap-4 px-26.5 py-25">
                 <AnimatedDotText text="Metrics" />
                 <div className="flex flex-row gap-0 w-full items-center justify-between">
