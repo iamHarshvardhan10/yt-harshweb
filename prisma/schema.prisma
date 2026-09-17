@@ -12,3 +12,115 @@ model User {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+/**
+ * |--------------------------------------------------------------------------
+ * | MEDIA
+ * |--------------------------------------------------------------------------
+ */
+
+model Media {
+  id String @id @default(cuid())
+
+  // Cloudinary information
+  publicId     String            @unique
+  secureUrl    String
+  resourceType MediaResourceType
+
+  // Original file information
+  originalName String?
+  format       String?
+
+  // Image dimensions
+  width  Int?
+  height Int?
+
+  // Video duration in seconds
+  duration Float?
+
+  // Cloudinary folder
+  folder String?
+
+  // Relations
+  homeHeroMedia HomeHeroMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | HOME HERO
+ * |--------------------------------------------------------------------------
+ */
+
+model HomeHero {
+  id String @id @default(cuid())
+
+  headline    String
+  description String
+
+  primaryButtonName String?
+  primaryButtonUrl  String?
+
+  secondaryButtonName String?
+  secondaryButtonUrl  String?
+
+  backgroundType HeroBackgroundType @default(IMAGE)
+
+  darkOverlay Boolean @default(false)
+
+  media HomeHeroMedia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | HOME HERO MEDIA
+ * |--------------------------------------------------------------------------
+ */
+
+model HomeHeroMedia {
+  id String @id @default(cuid())
+
+  homeHeroId String
+  mediaId    String
+
+  role HomeHeroMediaRole
+
+  homeHero HomeHero @relation(fields: [homeHeroId], references: [id], onDelete: Cascade)
+  media    Media    @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+
+  /**
+   * One hero can have only one background image
+   * and only one background video.
+   */
+  @@unique([homeHeroId, role])
+  @@index([homeHeroId])
+  @@index([mediaId])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | ENUMS
+ * |--------------------------------------------------------------------------
+ */
+
+enum MediaResourceType {
+  IMAGE
+  VIDEO
+}
+
+enum HeroBackgroundType {
+  IMAGE
+  VIDEO
+}
+
+enum HomeHeroMediaRole {
+  BACKGROUND_IMAGE
+  BACKGROUND_VIDEO
+}

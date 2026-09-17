@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { ChevronRightIcon } from "lucide-react"
+import Link from "next/link"
 
 export function NavMain({
   items,
@@ -112,7 +113,7 @@ export function NavMain({
                     />
                   </>
                 ) : (
-                  <a
+                  <Link
                     href={item.url}
                     className="flex w-full items-center gap-3"
                   >
@@ -123,7 +124,7 @@ export function NavMain({
                     <span>
                       {item.title}
                     </span>
-                  </a>
+                  </Link>
                 )}
 
               </CollapsibleTrigger>
@@ -170,11 +171,11 @@ export function NavMain({
                           "
                         >
 
-                          <a href={subItem.url}>
+                          <Link href={subItem.url}>
                             <span>
                               {subItem.title}
                             </span>
-                          </a>
+                          </Link>
 
                         </SidebarMenuSubButton>
 
