@@ -5,6 +5,7 @@ const footerLinks = {
         { name: "About", href: "/about" },
         { name: "Videos", href: "/videos" },
         { name: "Investigations", href: "/investigations" },
+        { name: "Newsletter", href: "/newsletter" },
         { name: "Contact", href: "/contact" },
     ],
     social: [

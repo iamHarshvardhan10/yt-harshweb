@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -10,61 +11,10 @@ import {
     Save,
     Plus,
     Trash2,
-    Loader2,
-    Check,
-    AlertCircle,
 } from "lucide-react"
 
-/* =============================================================
-   TYPES — mirror the Prisma models
-============================================================= */
-
-type MediaResourceType = "IMAGE" | "VIDEO"
-type HomeHeroMediaRole = "BACKGROUND_IMAGE" | "BACKGROUND_VIDEO"
-
-interface MediaRecord {
-    id: string
-    publicId: string
-    secureUrl: string
-    resourceType: MediaResourceType
-    originalName: string | null
-    format: string | null
-    width: number | null
-    height: number | null
-    duration: number | null
-}
-
-interface HomeHeroMediaRecord {
-    id: string
-    role: HomeHeroMediaRole
-    media: MediaRecord
-}
-
-interface HomeHeroRecord {
-    id: string
-    headline: string
-    description: string
-    primaryButtonName: string | null
-    primaryButtonUrl: string | null
-    secondaryButtonName: string | null
-    secondaryButtonUrl: string | null
-    backgroundType: "IMAGE" | "VIDEO"
-    darkOverlay: boolean
-    media: HomeHeroMediaRecord[]
-}
-
-type SaveState = "idle" | "saving" | "saved" | "error"
-
-/* =============================================================
-   HOME
-============================================================= */
 
 export default function Home() {
-    const [heroId, setHeroId] = React.useState<string | null>(null)
-    const [loading, setLoading] = React.useState(true)
-    const [saveState, setSaveState] = React.useState<SaveState>("idle")
-    const [errorMsg, setErrorMsg] = React.useState<string | null>(null)
-
     const [backgroundType, setBackgroundType] = React.useState<
         "image" | "video"
     >("video")
@@ -95,256 +45,6 @@ export default function Home() {
 
     const [overlay, setOverlay] = React.useState(65)
 
-    // Currently attached background media (image or video)
-    const [currentMedia, setCurrentMedia] = React.useState<MediaRecord | null>(
-        null
-    )
-
-    // Upload state
-    const [uploading, setUploading] = React.useState(false)
-    const [uploadError, setUploadError] = React.useState<string | null>(null)
-    const fileInputRef = React.useRef<HTMLInputElement>(null)
-
-    // Local-only toggles — no schema field yet, see note above the code
-    const [showHero, setShowHero] = React.useState(true)
-    const [autoplay, setAutoplay] = React.useState(true)
-    const [loop, setLoop] = React.useState(true)
-
-    /* =========================================================
-        LOAD EXISTING HERO ON MOUNT
-        Assumes a single "homepage hero" record — takes the most
-        recently created one. Adjust if you support multiple heroes.
-    ========================================================= */
-
-    React.useEffect(() => {
-        async function loadHero() {
-            try {
-                const res = await fetch("/api/hero")
-                if (!res.ok) throw new Error("Failed to load hero")
-
-                const data = await res.json()
-                const hero: HomeHeroRecord | undefined = data.heroes?.[0]
-
-                if (hero) {
-                    setHeroId(hero.id)
-                    setHeadline(hero.headline)
-                    setDescription(hero.description)
-                    setPrimaryCTA(hero.primaryButtonName ?? "")
-                    setPrimaryCTAUrl(hero.primaryButtonUrl ?? "")
-                    setSecondaryCTA(hero.secondaryButtonName ?? "")
-                    setSecondaryCTAUrl(hero.secondaryButtonUrl ?? "")
-                    setBackgroundType(
-                        hero.backgroundType === "VIDEO" ? "video" : "image"
-                    )
-                    setOverlay(hero.darkOverlay ? 65 : 0)
-
-                    const activeRole: HomeHeroMediaRole =
-                        hero.backgroundType === "VIDEO"
-                            ? "BACKGROUND_VIDEO"
-                            : "BACKGROUND_IMAGE"
-
-                    const attached = hero.media?.find(
-                        (m) => m.role === activeRole
-                    )
-                    setCurrentMedia(attached?.media ?? null)
-                }
-            } catch (err) {
-                console.error(err)
-                setErrorMsg("Couldn't load existing hero content.")
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        loadHero()
-    }, [])
-
-    /* =========================================================
-        SAVE HERO (create or update)
-    ========================================================= */
-
-    async function handleSave() {
-        setSaveState("saving")
-        setErrorMsg(null)
-
-        const payload = {
-            headline,
-            description,
-            primaryButtonName: primaryCTA || null,
-            primaryButtonUrl: primaryCTAUrl || null,
-            secondaryButtonName: secondaryCTA || null,
-            secondaryButtonUrl: secondaryCTAUrl || null,
-            backgroundType: backgroundType === "video" ? "VIDEO" : "IMAGE",
-            darkOverlay: overlay > 0,
-        }
-
-        try {
-            let activeHeroId = heroId
-
-            if (activeHeroId) {
-                const res = await fetch(`/api/hero/${activeHeroId}`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                })
-                if (!res.ok) throw new Error("Failed to update hero")
-            } else {
-                const res = await fetch("/api/hero", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                })
-                if (!res.ok) throw new Error("Failed to create hero")
-                const data = await res.json()
-                activeHeroId = data.hero.id
-                setHeroId(activeHeroId)
-            }
-
-            setSaveState("saved")
-            setTimeout(() => setSaveState("idle"), 2000)
-        } catch (err) {
-            console.error(err)
-            setSaveState("error")
-            setErrorMsg("Couldn't save changes. Please try again.")
-        }
-    }
-
-    /* =========================================================
-        UPLOAD MEDIA
-        1. Uploads file to /api/media/upload -> gets Media row
-        2. If a hero already exists, attaches it immediately
-        3. If not, hero must be saved first (media attach needs heroId)
-    ========================================================= */
-
-    async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0]
-        if (!file) return
-
-        setUploadError(null)
-
-        const expectsVideo = backgroundType === "video"
-        const isVideo = file.type.startsWith("video/")
-        const isImage = file.type.startsWith("image/")
-
-        if (expectsVideo && !isVideo) {
-            setUploadError("Please select a video file for a video background.")
-            return
-        }
-        if (!expectsVideo && !isImage) {
-            setUploadError("Please select an image file for an image background.")
-            return
-        }
-
-        setUploading(true)
-
-        try {
-            // 1. Upload to Cloudinary via the generic media endpoint
-            const formData = new FormData()
-            formData.append("file", file)
-            formData.append("folder", "hero")
-
-            const uploadRes = await fetch("/api/media/upload", {
-                method: "POST",
-                body: formData,
-            })
-
-            if (!uploadRes.ok) {
-                const err = await uploadRes.json().catch(() => null)
-                throw new Error(err?.error ?? "Upload failed")
-            }
-
-            const { media } = (await uploadRes.json()) as { media: MediaRecord }
-
-            // 2. Need a hero to attach media to — save one first if it doesn't exist yet
-            let activeHeroId = heroId
-
-            if (!activeHeroId) {
-                const createRes = await fetch("/api/hero", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        headline,
-                        description,
-                        primaryButtonName: primaryCTA || null,
-                        primaryButtonUrl: primaryCTAUrl || null,
-                        secondaryButtonName: secondaryCTA || null,
-                        secondaryButtonUrl: secondaryCTAUrl || null,
-                        backgroundType:
-                            backgroundType === "video" ? "VIDEO" : "IMAGE",
-                        darkOverlay: overlay > 0,
-                    }),
-                })
-                if (!createRes.ok) throw new Error("Failed to create hero")
-                const createData = await createRes.json()
-                activeHeroId = createData.hero.id
-                setHeroId(activeHeroId)
-            }
-
-            // 3. Attach the uploaded media to the hero
-            const role: HomeHeroMediaRole =
-                backgroundType === "video"
-                    ? "BACKGROUND_VIDEO"
-                    : "BACKGROUND_IMAGE"
-
-            const attachRes = await fetch(`/api/hero/${activeHeroId}/media`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mediaId: media.id, role }),
-            })
-
-            if (!attachRes.ok) {
-                const err = await attachRes.json().catch(() => null)
-                throw new Error(err?.error ?? "Failed to attach media")
-            }
-
-            setCurrentMedia(media)
-        } catch (err) {
-            console.error(err)
-            setUploadError(
-                err instanceof Error ? err.message : "Upload failed"
-            )
-        } finally {
-            setUploading(false)
-            if (fileInputRef.current) fileInputRef.current.value = ""
-        }
-    }
-
-    /* =========================================================
-        REMOVE CURRENT MEDIA
-    ========================================================= */
-
-    async function handleRemoveMedia() {
-        if (!heroId || !currentMedia) return
-
-        const role: HomeHeroMediaRole =
-            backgroundType === "video" ? "BACKGROUND_VIDEO" : "BACKGROUND_IMAGE"
-
-        try {
-            const res = await fetch(
-                `/api/hero/${heroId}/media?role=${role}`,
-                { method: "DELETE" }
-            )
-            if (!res.ok) throw new Error("Failed to remove media")
-            setCurrentMedia(null)
-        } catch (err) {
-            console.error(err)
-            setUploadError("Couldn't remove media. Please try again.")
-        }
-    }
-
-    function formatFileSize(bytes: number | null) {
-        if (!bytes) return ""
-        const mb = bytes / (1024 * 1024)
-        return mb >= 1 ? `${mb.toFixed(1)} MB` : `${(bytes / 1024).toFixed(0)} KB`
-    }
-
-    if (loading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
-                <Loader2 className="animate-spin text-zinc-400" size={28} />
-            </div>
-        )
-    }
 
     return (
         <div className="min-h-full bg-zinc-50 dark:bg-black">
@@ -368,17 +68,8 @@ export default function Home() {
 
                 <div className="flex items-center gap-3">
 
-                    {errorMsg && (
-                        <span className="flex items-center gap-1.5 text-xs text-red-500">
-                            <AlertCircle size={14} />
-                            {errorMsg}
-                        </span>
-                    )}
-
                     <button
                         type="button"
-                        onClick={handleSave}
-                        disabled={saveState === "saving"}
                         className="
                             inline-flex
                             items-center
@@ -392,22 +83,11 @@ export default function Home() {
                             text-white
                             transition
                             hover:bg-red-700
-                            disabled:opacity-60
                         "
                     >
-                        {saveState === "saving" ? (
-                            <Loader2 size={16} className="animate-spin" />
-                        ) : saveState === "saved" ? (
-                            <Check size={16} />
-                        ) : (
-                            <Save size={16} />
-                        )}
+                        <Save size={16} />
 
-                        {saveState === "saving"
-                            ? "Saving..."
-                            : saveState === "saved"
-                                ? "Saved"
-                                : "Save Changes"}
+                        Save Changes
                     </button>
 
                 </div>
@@ -444,7 +124,7 @@ export default function Home() {
 
                             <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
 
-                            {heroId ? "Published" : "Draft — not saved yet"}
+                            Published
 
                         </div>
 
@@ -779,28 +459,11 @@ export default function Home() {
 
                         <div className="mt-4">
 
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept={
-                                    backgroundType === "video"
-                                        ? "video/*"
-                                        : "image/*"
-                                }
-                                onChange={handleFileSelect}
-                                className="hidden"
-                            />
-
                             <div className="overflow-hidden rounded-xl border border-dashed border-zinc-300 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
 
                                 <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
 
-                                    {uploading ? (
-                                        <Loader2
-                                            size={24}
-                                            className="animate-spin text-zinc-400"
-                                        />
-                                    ) : backgroundType === "video" ? (
+                                    {backgroundType === "video" ? (
                                         <Video
                                             size={24}
                                             className="text-zinc-400"
@@ -814,28 +477,16 @@ export default function Home() {
 
 
                                     <p className="mt-3 text-sm font-medium">
-                                        {uploading
-                                            ? "Uploading..."
-                                            : `Upload ${backgroundType}`}
+                                        Upload {backgroundType}
                                     </p>
 
                                     <p className="mt-1 text-xs text-zinc-500">
                                         or select from media library
                                     </p>
 
-                                    {uploadError && (
-                                        <p className="mt-2 text-xs text-red-500">
-                                            {uploadError}
-                                        </p>
-                                    )}
-
 
                                     <button
                                         type="button"
-                                        disabled={uploading}
-                                        onClick={() =>
-                                            fileInputRef.current?.click()
-                                        }
                                         className="
                                             mt-4
                                             inline-flex
@@ -849,7 +500,6 @@ export default function Home() {
                                             font-medium
                                             text-white
                                             hover:bg-zinc-800
-                                            disabled:opacity-60
                                             dark:bg-white
                                             dark:text-black
                                             dark:hover:bg-zinc-200
@@ -869,63 +519,54 @@ export default function Home() {
 
                         {/* CURRENT MEDIA */}
 
-                        {currentMedia && (
-                            <div className="mt-5">
+                        <div className="mt-5">
 
-                                <p className="mb-2 text-xs font-medium text-zinc-500">
-                                    Current background
-                                </p>
+                            <p className="mb-2 text-xs font-medium text-zinc-500">
+                                Current background
+                            </p>
 
-                                <div className="flex items-center gap-3 rounded-lg border border-zinc-200 p-2 dark:border-zinc-800">
+                            <div className="flex items-center gap-3 rounded-lg border border-zinc-200 p-2 dark:border-zinc-800">
 
-                                    <div className="flex h-12 w-20 items-center justify-center overflow-hidden rounded-md bg-zinc-900">
+                                <div className="flex h-12 w-20 items-center justify-center overflow-hidden rounded-md bg-zinc-900">
 
-                                        {currentMedia.resourceType === "IMAGE" ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={currentMedia.secureUrl}
-                                                alt={currentMedia.originalName ?? "background"}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        ) : (
-                                            <Video
-                                                size={17}
-                                                className="text-white"
-                                            />
-                                        )}
-
-                                    </div>
-
-
-                                    <div className="min-w-0 flex-1">
-
-                                        <p className="truncate text-xs font-medium">
-                                            {currentMedia.originalName ?? currentMedia.publicId}
-                                        </p>
-
-                                        <p className="mt-1 text-[10px] text-zinc-500">
-                                            {currentMedia.width && currentMedia.height
-                                                ? `${currentMedia.width} × ${currentMedia.height}`
-                                                : currentMedia.duration
-                                                    ? `${Math.round(currentMedia.duration)}s`
-                                                    : ""}
-                                        </p>
-
-                                    </div>
-
-
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveMedia}
-                                        className="text-zinc-400 transition hover:text-red-500"
-                                    >
-                                        <Trash2 size={15} />
-                                    </button>
+                                    {backgroundType === "video" ? (
+                                        <Video
+                                            size={17}
+                                            className="text-white"
+                                        />
+                                    ) : (
+                                        <ImageIcon
+                                            size={17}
+                                            className="text-white"
+                                        />
+                                    )}
 
                                 </div>
 
+
+                                <div className="min-w-0 flex-1">
+
+                                    <p className="truncate text-xs font-medium">
+                                        hero-background.mp4
+                                    </p>
+
+                                    <p className="mt-1 text-[10px] text-zinc-500">
+                                        1920 × 1080 · 12.4 MB
+                                    </p>
+
+                                </div>
+
+
+                                <button
+                                    type="button"
+                                    className="text-zinc-400 transition hover:text-red-500"
+                                >
+                                    <Trash2 size={15} />
+                                </button>
+
                             </div>
-                        )}
+
+                        </div>
 
 
                         {/* OVERLAY */}
@@ -956,10 +597,6 @@ export default function Home() {
                                 className="w-full accent-red-600"
                             />
 
-                            <p className="mt-1.5 text-[11px] text-zinc-400">
-                                Saved as on/off — add an `overlayOpacity` field to the schema to persist the exact percentage.
-                            </p>
-
                         </div>
 
                     </EditorSection>
@@ -967,8 +604,6 @@ export default function Home() {
 
                     {/* =================================================
                         HERO SETTINGS
-                        NOTE: these three toggles are local-only until
-                        matching columns exist on HomeHero.
                     ================================================= */}
 
                     <EditorSection
@@ -992,10 +627,7 @@ export default function Home() {
                                     </p>
                                 </div>
 
-                                <Toggle
-                                    checked={showHero}
-                                    onChange={setShowHero}
-                                />
+                                <Toggle defaultChecked />
 
                             </div>
 
@@ -1014,10 +646,7 @@ export default function Home() {
                                     </p>
                                 </div>
 
-                                <Toggle
-                                    checked={autoplay}
-                                    onChange={setAutoplay}
-                                />
+                                <Toggle defaultChecked />
 
                             </div>
 
@@ -1036,10 +665,7 @@ export default function Home() {
                                     </p>
                                 </div>
 
-                                <Toggle
-                                    checked={loop}
-                                    onChange={setLoop}
-                                />
+                                <Toggle defaultChecked />
 
                             </div>
 
@@ -1100,17 +726,17 @@ function EditorSection({
 ============================================================= */
 
 function Toggle({
-    checked,
-    onChange,
+    defaultChecked = false,
 }: {
-    checked: boolean
-    onChange: (value: boolean) => void
+    defaultChecked?: boolean
 }) {
+
+    const [checked, setChecked] = React.useState(defaultChecked)
 
     return (
         <button
             type="button"
-            onClick={() => onChange(!checked)}
+            onClick={() => setChecked(!checked)}
             className={`
                 relative
                 h-5

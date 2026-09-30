@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Chivo_Mono } from "next/font/google"
+import "../globals.css";
 import Navbar from "@/components/core/Navbar";
 import SmoothScroll from "@/components/common/SmoothScroll";
 import Footer from "@/components/core/Footer";

@@ -2,22 +2,16 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Link from "next/link"
 import {
     Archive,
-    ArrowLeft,
-    Check,
-    ChevronDown,
     Clock,
     Mail,
     MailOpen,
     MoreHorizontal,
     Reply,
     Search,
-    Send,
     Star,
     Trash2,
-    User,
     X,
     Inbox,
     AlertCircle,
@@ -239,44 +233,28 @@ export default function ContactPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0f0f0f] text-white">
+        <div className="min-h-full bg-zinc-50 dark:bg-black">
             {/* Header */}
-            <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0f0f0f]/95 backdrop-blur">
-                <div className="flex h-16 items-center justify-between px-6">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href="/dashboard"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-[#151515] text-white/60 transition hover:bg-white/5 hover:text-white"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                        </Link>
+            <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-zinc-200 bg-white/95 px-6 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
+                <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-red-500">
+                        Website
+                    </p>
 
-                        <div>
-                            <h1 className="text-lg font-semibold">
-                                Contact Messages
-                            </h1>
+                    <h1 className="text-lg font-semibold">
+                        Contact Messages
+                    </h1>
+                </div>
 
-                            <p className="text-xs text-white/40">
-                                Manage messages received from your website
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="hidden items-center gap-2 sm:flex">
-                        <div className="flex items-center gap-2 rounded-lg border border-green-500/20 bg-green-500/5 px-3 py-2">
-                            <span className="h-2 w-2 rounded-full bg-green-500" />
-
-                            <span className="text-xs text-green-400">
-                                Contact form active
-                            </span>
-                        </div>
-                    </div>
+                <div className="hidden items-center gap-2 text-xs text-zinc-500 sm:flex">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    Contact form active
                 </div>
             </header>
 
-            <main className="mx-auto max-w-[1500px] px-6 py-6">
+            <main className="mx-auto max-w-7xl px-6 py-8">
                 {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                     <StatCard
                         label="Total Messages"
                         value={stats.total}
@@ -304,9 +282,9 @@ export default function ContactPage() {
                 </div>
 
                 {/* Inbox */}
-                <section className="mt-6 overflow-hidden rounded-xl border border-white/10 bg-[#151515]">
+                <section className="mt-8 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
                     {/* Toolbar */}
-                    <div className="border-b border-white/10">
+                    <div className="border-b border-zinc-200 dark:border-zinc-800">
                         <div className="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
                             {/* Filters */}
                             <div className="flex items-center gap-1 overflow-x-auto">
@@ -325,9 +303,9 @@ export default function ContactPage() {
                                             onClick={() =>
                                                 setActiveFilter(filter.value)
                                             }
-                                            className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition ${activeFilter === filter.value
-                                                    ? "bg-red-600/10 text-red-500"
-                                                    : "text-white/40 hover:bg-white/5 hover:text-white"
+                                            className={`flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition ${activeFilter === filter.value
+                                                    ? "bg-zinc-900 text-white dark:bg-white dark:text-black"
+                                                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
                                                 }`}
                                         >
                                             {filter.label}
@@ -335,7 +313,7 @@ export default function ContactPage() {
                                             <span
                                                 className={`rounded-full px-1.5 py-0.5 text-[10px] ${activeFilter === filter.value
                                                         ? "bg-red-600 text-white"
-                                                        : "bg-white/5 text-white/30"
+                                                        : "bg-zinc-100 text-zinc-500 dark:bg-zinc-900"
                                                     }`}
                                             >
                                                 {count}
@@ -347,7 +325,7 @@ export default function ContactPage() {
 
                             {/* Search */}
                             <div className="relative w-full lg:w-72">
-                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+                                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
 
                                 <input
                                     value={search}
@@ -355,7 +333,7 @@ export default function ContactPage() {
                                         setSearch(e.target.value)
                                     }
                                     placeholder="Search messages..."
-                                    className="w-full rounded-lg border border-white/10 bg-[#101010] py-2.5 pl-9 pr-3 text-xs outline-none transition placeholder:text-white/20 focus:border-red-600"
+                                    className="w-full rounded-lg border border-zinc-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/10 dark:border-zinc-800 dark:bg-zinc-950"
                                 />
                             </div>
                         </div>
@@ -386,8 +364,8 @@ export default function ContactPage() {
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between border-t border-white/10 px-5 py-3">
-                        <p className="text-[11px] text-white/30">
+                    <div className="flex items-center justify-between border-t border-zinc-200 px-5 py-3 dark:border-zinc-800">
+                        <p className="text-[11px] text-zinc-500">
                             Showing {filteredMessages.length} of{" "}
                             {messages.length} messages
                         </p>
@@ -395,18 +373,18 @@ export default function ContactPage() {
                         <div className="flex items-center gap-2">
                             <button
                                 disabled
-                                className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] text-white/20"
+                                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-[11px] text-zinc-400 dark:border-zinc-800 dark:text-zinc-600"
                             >
                                 Previous
                             </button>
 
-                            <span className="rounded-lg bg-white/5 px-3 py-1.5 text-[11px] text-white/50">
+                            <span className="rounded-lg bg-zinc-100 px-3 py-1.5 text-[11px] text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
                                 1
                             </span>
 
                             <button
                                 disabled
-                                className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] text-white/20"
+                                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-[11px] text-zinc-400 dark:border-zinc-800 dark:text-zinc-600"
                             >
                                 Next
                             </button>
@@ -422,32 +400,32 @@ export default function ContactPage() {
                     <button
                         aria-label="Close message"
                         onClick={() => setSelectedMessage(null)}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+                        className="absolute inset-0 cursor-default bg-black/40 backdrop-blur-sm"
                     />
 
                     {/* Drawer */}
-                    <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-white/10 bg-[#111111] shadow-2xl">
+                    <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col border-l border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
                         {/* Drawer Header */}
-                        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                        <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-600/10 text-red-500">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-500/10 text-red-500">
                                     <MailOpen className="h-4 w-4" />
                                 </div>
 
                                 <div>
-                                    <p className="text-sm font-semibold">
-                                        Message Details
+                                    <p className="text-xs font-medium uppercase tracking-widest text-red-500">
+                                        {selectedMessage.source}
                                     </p>
 
-                                    <p className="text-[11px] text-white/30">
-                                        {selectedMessage.source}
+                                    <p className="mt-0.5 text-sm font-semibold">
+                                        Message Details
                                     </p>
                                 </div>
                             </div>
 
                             <button
                                 onClick={() => setSelectedMessage(null)}
-                                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:bg-white/5 hover:text-white"
+                                className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-900 dark:hover:text-white"
                             >
                                 <X className="h-4 w-4" />
                             </button>
@@ -456,10 +434,10 @@ export default function ContactPage() {
                         {/* Drawer Content */}
                         <div className="flex-1 overflow-y-auto">
                             {/* Sender */}
-                            <div className="border-b border-white/10 p-5">
+                            <div className="border-b border-zinc-200 p-5 dark:border-zinc-800">
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-sm font-semibold">
+                                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold dark:bg-zinc-900">
                                             {selectedMessage.name
                                                 .split(" ")
                                                 .map((name) => name[0])
@@ -474,7 +452,7 @@ export default function ContactPage() {
 
                                             <a
                                                 href={`mailto:${selectedMessage.email}`}
-                                                className="text-xs text-white/40 hover:text-red-500"
+                                                className="text-xs text-zinc-500 hover:text-red-500"
                                             >
                                                 {selectedMessage.email}
                                             </a>
@@ -487,7 +465,7 @@ export default function ContactPage() {
                                         }
                                         className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${selectedMessage.starred
                                                 ? "bg-yellow-500/10 text-yellow-500"
-                                                : "text-white/30 hover:bg-white/5 hover:text-white"
+                                                : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-900 dark:hover:text-white"
                                             }`}
                                     >
                                         <Star
@@ -507,7 +485,7 @@ export default function ContactPage() {
                                     />
 
                                     {selectedMessage.priority === "high" && (
-                                        <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-medium text-red-400">
+                                        <span className="flex items-center gap-1.5 rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-medium text-red-500">
                                             <AlertCircle className="h-3 w-3" />
                                             High Priority
                                         </span>
@@ -516,8 +494,8 @@ export default function ContactPage() {
                             </div>
 
                             {/* Subject */}
-                            <div className="border-b border-white/10 p-5">
-                                <p className="text-[10px] uppercase tracking-wider text-white/30">
+                            <div className="border-b border-zinc-200 p-5 dark:border-zinc-800">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
                                     Subject
                                 </p>
 
@@ -525,7 +503,7 @@ export default function ContactPage() {
                                     {selectedMessage.subject}
                                 </h2>
 
-                                <div className="mt-2 flex items-center gap-2 text-[11px] text-white/30">
+                                <div className="mt-2 flex items-center gap-2 text-[11px] text-zinc-500">
                                     <Clock className="h-3 w-3" />
 
                                     {selectedMessage.date} at{" "}
@@ -535,12 +513,12 @@ export default function ContactPage() {
 
                             {/* Message */}
                             <div className="p-5">
-                                <p className="mb-3 text-[10px] uppercase tracking-wider text-white/30">
+                                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">
                                     Message
                                 </p>
 
-                                <div className="rounded-xl border border-white/10 bg-[#151515] p-4">
-                                    <p className="whitespace-pre-wrap text-sm leading-7 text-white/70">
+                                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                                    <p className="whitespace-pre-wrap text-sm leading-7 text-zinc-700 dark:text-zinc-300">
                                         {selectedMessage.message}
                                     </p>
                                 </div>
@@ -563,7 +541,7 @@ export default function ContactPage() {
                         </div>
 
                         {/* Drawer Footer */}
-                        <div className="border-t border-white/10 bg-[#151515] p-4">
+                        <div className="border-t border-zinc-200 p-4 dark:border-zinc-800">
                             <div className="flex gap-2">
                                 <a
                                     href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`}
@@ -572,7 +550,7 @@ export default function ContactPage() {
                                             status: "replied",
                                         })
                                     }
-                                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-xs font-medium transition hover:bg-red-700"
+                                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-700"
                                 >
                                     <Reply className="h-4 w-4" />
                                     Reply
@@ -582,7 +560,7 @@ export default function ContactPage() {
                                     onClick={() =>
                                         archiveMessage(selectedMessage.id)
                                     }
-                                    className="flex items-center justify-center gap-2 rounded-lg border border-white/10 px-4 py-2.5 text-xs text-white/60 transition hover:bg-white/5 hover:text-white"
+                                    className="flex items-center justify-center gap-2 rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium transition hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"
                                 >
                                     <Archive className="h-4 w-4" />
                                     Archive
@@ -592,7 +570,7 @@ export default function ContactPage() {
                                     onClick={() =>
                                         deleteMessage(selectedMessage.id)
                                     }
-                                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/10 text-red-400 transition hover:bg-red-500/10"
+                                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-red-500/20 text-red-500 transition hover:bg-red-500/10"
                                 >
                                     <Trash2 className="h-4 w-4" />
                                 </button>
@@ -630,13 +608,13 @@ function MessageRow({
 
     return (
         <div
-            className={`group flex items-center gap-3 border-b border-white/5 px-5 py-4 transition hover:bg-white/[0.025] ${isUnread ? "bg-white/[0.015]" : ""
+            className={`group flex items-center gap-3 border-b border-zinc-200 px-5 py-4 transition last:border-b-0 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-900/50 ${isUnread ? "bg-red-50/40 dark:bg-zinc-900/30" : ""
                 }`}
         >
             {/* Checkbox */}
-            <button
-                onClick={onClick}
-                className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-white/20 hover:border-red-500"
+            <input
+                type="checkbox"
+                className="h-4 w-4 shrink-0 accent-red-600"
             />
 
             {/* Star */}
@@ -644,7 +622,7 @@ function MessageRow({
                 onClick={onStar}
                 className={`shrink-0 transition ${message.starred
                         ? "text-yellow-500"
-                        : "text-white/20 hover:text-white/60"
+                        : "text-zinc-300 hover:text-zinc-500 dark:text-zinc-700 dark:hover:text-zinc-400"
                     }`}
             >
                 <Star
@@ -662,8 +640,8 @@ function MessageRow({
             >
                 <div
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${isUnread
-                            ? "bg-red-600/10 text-red-500"
-                            : "bg-white/10 text-white/50"
+                            ? "bg-red-500/10 text-red-500"
+                            : "bg-zinc-100 text-zinc-500 dark:bg-zinc-900"
                         }`}
                 >
                     {message.name
@@ -675,30 +653,30 @@ function MessageRow({
 
                 <div className="min-w-0 w-40">
                     <p
-                        className={`truncate text-xs ${isUnread
-                                ? "font-semibold text-white"
-                                : "text-white/60"
+                        className={`truncate text-sm ${isUnread
+                                ? "font-semibold"
+                                : "text-zinc-600 dark:text-zinc-400"
                             }`}
                     >
                         {message.name}
                     </p>
 
-                    <p className="truncate text-[10px] text-white/30">
+                    <p className="truncate text-[10px] text-zinc-500">
                         {message.email}
                     </p>
                 </div>
 
                 <div className="min-w-0 flex-1">
                     <p
-                        className={`truncate text-xs ${isUnread
-                                ? "font-semibold text-white"
-                                : "text-white/60"
+                        className={`truncate text-sm ${isUnread
+                                ? "font-semibold"
+                                : "text-zinc-600 dark:text-zinc-400"
                             }`}
                     >
                         {message.subject}
                     </p>
 
-                    <p className="mt-0.5 truncate text-[11px] text-white/25">
+                    <p className="mt-0.5 truncate text-[11px] text-zinc-500">
                         {message.message}
                     </p>
                 </div>
@@ -706,7 +684,7 @@ function MessageRow({
 
             {/* Priority */}
             {message.priority === "high" && (
-                <span className="hidden rounded-full bg-red-500/10 px-2 py-1 text-[9px] font-medium text-red-400 lg:block">
+                <span className="hidden rounded-full bg-red-500/10 px-2 py-1 text-[9px] font-medium text-red-500 lg:block">
                     High
                 </span>
             )}
@@ -718,11 +696,11 @@ function MessageRow({
 
             {/* Date */}
             <div className="hidden w-28 text-right md:block">
-                <p className="text-[11px] text-white/40">
+                <p className="text-[11px] text-zinc-500">
                     {message.date}
                 </p>
 
-                <p className="mt-0.5 text-[10px] text-white/20">
+                <p className="mt-0.5 text-[10px] text-zinc-400 dark:text-zinc-600">
                     {message.time}
                 </p>
             </div>
@@ -733,19 +711,19 @@ function MessageRow({
                     onClick={() =>
                         setShowMenu(showMenu ? null : message.id)
                     }
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-white/20 opacity-0 transition hover:bg-white/5 hover:text-white group-hover:opacity-100"
+                    className="rounded-lg p-2 text-zinc-400 opacity-0 transition hover:bg-zinc-100 hover:text-zinc-900 group-hover:opacity-100 dark:hover:bg-zinc-800 dark:hover:text-white"
                 >
                     <MoreHorizontal className="h-4 w-4" />
                 </button>
 
                 {showMenu && (
-                    <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-lg border border-white/10 bg-[#181818] shadow-xl">
+                    <div className="absolute right-0 top-9 z-20 w-40 overflow-hidden rounded-lg border border-zinc-200 bg-white p-1 shadow-xl dark:border-zinc-800 dark:bg-zinc-950">
                         <button
                             onClick={() => {
                                 onClick()
                                 setShowMenu(null)
                             }}
-                            className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-white/60 hover:bg-white/5 hover:text-white"
+                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white"
                         >
                             <MailOpen className="h-3.5 w-3.5" />
                             Open message
@@ -756,7 +734,7 @@ function MessageRow({
                                 onArchive()
                                 setShowMenu(null)
                             }}
-                            className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-white/60 hover:bg-white/5 hover:text-white"
+                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white"
                         >
                             <Archive className="h-3.5 w-3.5" />
                             Archive
@@ -767,7 +745,7 @@ function MessageRow({
                                 onDelete()
                                 setShowMenu(null)
                             }}
-                            className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-red-400 hover:bg-red-500/10"
+                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs text-red-500 hover:bg-red-500/10"
                         >
                             <Trash2 className="h-3.5 w-3.5" />
                             Delete
@@ -791,19 +769,19 @@ function StatusBadge({
     const config = {
         unread: {
             label: "Unread",
-            className: "bg-red-500/10 text-red-400",
+            className: "bg-red-500/10 text-red-500",
         },
         read: {
             label: "Read",
-            className: "bg-white/5 text-white/40",
+            className: "bg-zinc-100 text-zinc-500 dark:bg-zinc-900",
         },
         replied: {
             label: "Replied",
-            className: "bg-green-500/10 text-green-400",
+            className: "bg-green-500/10 text-green-600 dark:text-green-400",
         },
         archived: {
             label: "Archived",
-            className: "bg-white/5 text-white/30",
+            className: "bg-zinc-100 text-zinc-400 dark:bg-zinc-900 dark:text-zinc-500",
         },
     }
 
@@ -811,7 +789,7 @@ function StatusBadge({
 
     return (
         <span
-            className={`inline-flex rounded-full px-2 py-1 text-[9px] font-medium ${current.className}`}
+            className={`inline-flex rounded-full px-2 py-1 text-[10px] font-medium ${current.className}`}
         >
             {current.label}
         </span>
@@ -834,13 +812,14 @@ function StatCard({
     accent?: boolean
 }) {
     return (
-        <div className="rounded-xl border border-white/10 bg-[#151515] p-4">
+        <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
             <div className="flex items-center justify-between">
                 <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg ${accent
-                            ? "bg-red-600/10 text-red-500"
-                            : "bg-white/5 text-white/40"
-                        }`}
+                    className={
+                        accent
+                            ? "text-red-500"
+                            : "text-zinc-400"
+                    }
                 >
                     {icon}
                 </div>
@@ -850,7 +829,7 @@ function StatCard({
                 {value}
             </p>
 
-            <p className="mt-1 text-xs text-white/35">
+            <p className="mt-1 text-xs text-zinc-500">
                 {label}
             </p>
         </div>
@@ -869,12 +848,12 @@ function InfoBox({
     value: string
 }) {
     return (
-        <div className="rounded-lg border border-white/10 bg-[#101010] p-3">
-            <p className="text-[9px] uppercase tracking-wider text-white/25">
+        <div className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
                 {label}
             </p>
 
-            <p className="mt-1 truncate text-[11px] text-white/50">
+            <p className="mt-1 truncate text-xs text-zinc-600 dark:text-zinc-400">
                 {value}
             </p>
         </div>
@@ -887,16 +866,14 @@ function InfoBox({
 
 function EmptyState() {
     return (
-        <div className="flex min-h-[350px] flex-col items-center justify-center px-6 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5">
-                <Mail className="h-5 w-5 text-white/25" />
-            </div>
+        <div className="px-6 py-16 text-center">
+            <Mail className="mx-auto h-7 w-7 text-zinc-300 dark:text-zinc-700" />
 
-            <h3 className="mt-4 text-sm font-medium">
+            <p className="mt-3 text-sm font-medium">
                 No messages found
-            </h3>
+            </p>
 
-            <p className="mt-1 max-w-sm text-xs leading-5 text-white/30">
+            <p className="mt-1 text-xs text-zinc-500">
                 Messages submitted through your website contact form
                 will appear here.
             </p>

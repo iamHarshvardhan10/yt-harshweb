@@ -42,6 +42,15 @@ export default function Navbar() {
 
                     <li>
                         <Link
+                            href="/newsletter"
+                            className="text-[16px] font-medium  uppercase"
+                        >
+                            Newsletter
+                        </Link>
+                    </li>
+
+                    <li>
+                        <Link
                             href="/contact"
                             className="text-[16px] font-medium  uppercase"
                         >
