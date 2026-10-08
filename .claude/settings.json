@@ -49,7 +49,8 @@
       "Bash(curl -s -o /dev/null -w \"/dashboard \\(signed out\\): %{http_code} -> %{redirect_url}\\\\n\" --max-time 90 http://localhost:3000/dashboard)",
       "Bash(node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON .yt.tmp.mjs)",
       "Bash(node .yt.tmp.mjs)",
-      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-Object -First 10; \"tsc exit: $LASTEXITCODE\"; npx eslint app/dashboard/page.tsx lib/youtube.ts 2>&1 | Select-Object -First 10; \"eslint exit: $LASTEXITCODE\")"
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-Object -First 10; \"tsc exit: $LASTEXITCODE\"; npx eslint app/dashboard/page.tsx lib/youtube.ts 2>&1 | Select-Object -First 10; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(npm run build 2>&1)"
     ]
   }
 }
