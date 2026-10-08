@@ -3,13 +3,18 @@ import Link from "next/link";
 
 import { featuredVideos } from "@/app/utils/constant";
 import AnimatedDotText from "@/components/common/AnimateDot";
+import type { HomeSectionData } from "@/lib/home/queries";
 
-export default function FeaturedVideos() {
+// Header copy comes from the DB; the video grid will come from the YouTube API.
+export default function FeaturedVideos({ section }: { section: HomeSectionData }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
             <div className="flex flex-col items-center justify-center mt-30">
-                <AnimatedDotText text="Featured Vidoes" className="mb-2" />
-                <h2 className="uppercase text-4xl w-[30%] text-center">Explore the videos available on the site</h2>
+                {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
+                <h2 className="uppercase text-4xl w-[30%] text-center">{section.title}</h2>
+                {section.description && (
+                    <p className="text-[16px] text-[#c9c9c9] w-[40%] text-center mt-3">{section.description}</p>
+                )}
             </div>
 
             <div className="px-49 py-15">

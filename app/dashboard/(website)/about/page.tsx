@@ -1,1174 +1,424 @@
-
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
+import { ExternalLink, Link2, Loader2, RotateCcw, Save } from "lucide-react"
+import type { AboutPage as AboutPageRow, AboutStep, Media } from "@prisma/client"
 
+import { defaultAboutPage } from "@/lib/about/defaults"
+import { api, useAction } from "@/components/dashboard/home/api"
+import CollectionEditor from "@/components/dashboard/home/CollectionEditor"
 import {
-    Plus,
-    GripVertical,
-    MoreHorizontal,
-    Image as ImageIcon,
-    Video,
-    Type,
-    Trash2,
-    Upload,
-    ChevronDown,
-    ChevronUp,
-    Save,
-    LayoutPanelTop,
-    Play,
-} from "lucide-react"
+    EditorSection,
+    MediaUpload,
+    PrimaryButton,
+    SecondaryButton,
+    StatusText,
+    TextAreaField,
+    TextField,
+    ToggleRow,
+    labelClass,
+} from "@/components/dashboard/home/ui"
 
 
-type MediaItem = {
-    id: number
-    type: "image" | "video"
-    name: string
-    url: string
+type AboutRow = AboutPageRow & { heroMedia: Media | null }
+type AboutAdminData = { page: AboutRow | null; steps: AboutStep[] }
+
+const tabs = [
+    { id: "HERO", label: "Hero" },
+    { id: "PROCESS", label: "How We Work" },
+    { id: "CTA", label: "Call to Action" },
+    { id: "BLOCKS", label: "Page Blocks" },
+] as const
+
+type TabId = (typeof tabs)[number]["id"]
+
+const fetchAbout = () => api<AboutAdminData>("/api/about?scope=admin")
+
+const errorText = (err: unknown) =>
+    err instanceof Error ? err.message : "Failed to load about page content"
+
+function toForm(page: AboutRow | null) {
+    const source = page ?? defaultAboutPage
+    return {
+        heroTag: source.heroTag,
+        heroTitle: source.heroTitle,
+        heroDesc: source.heroDesc,
+        processTag: source.processTag,
+        processTitle: source.processTitle,
+        processDesc: source.processDesc,
+        processVisible: source.processVisible,
+        ctaTag: source.ctaTag,
+        ctaTitle: source.ctaTitle,
+        ctaDesc: source.ctaDesc,
+        ctaBtn1: source.ctaBtn1,
+        ctaBtn1Link: source.ctaBtn1Link,
+        ctaBtn2: source.ctaBtn2,
+        ctaBtn2Link: source.ctaBtn2Link,
+        ctaVisible: source.ctaVisible,
+        showAbout: source.showAbout,
+        showMetrics: source.showMetrics,
+    }
 }
 
-
-type AboutSection = {
-    id: number
-    title: string
-    eyebrow: string
-    heading: string
-    content: string
-    layout: "text-left" | "text-right" | "center"
-    showOnHome: boolean
-    visible: boolean
-    media: MediaItem[]
-}
-
-
-const initialSections: AboutSection[] = [
-    {
-        id: 1,
-        title: "Who We Are",
-        eyebrow: "ABOUT US",
-        heading: "Stories that deserve a closer look.",
-        content:
-            "We investigate the decisions, systems and consequences that shape the world around us. Our work focuses on making complex issues understandable through research, evidence and visual storytelling.",
-        layout: "text-left",
-        showOnHome: true,
-        visible: true,
-        media: [
-            {
-                id: 1,
-                type: "image",
-                name: "harsh-investigation.jpg",
-                url: "/about-1.webp",
-            },
-            {
-                id: 2,
-                type: "image",
-                name: "research-room.jpg",
-                url: "/about-2.webp",
-            },
-        ],
-    },
-
-    {
-        id: 2,
-        title: "Why We Investigate",
-        eyebrow: "OUR APPROACH",
-        heading: "Look beyond the headline.",
-        content:
-            "Every major story has layers. We look at the data, documents, decisions and people behind an issue to understand what is really happening.",
-        layout: "text-right",
-        showOnHome: false,
-        visible: true,
-        media: [
-            {
-                id: 3,
-                type: "video",
-                name: "investigation-process.mp4",
-                url: "/investigation.mp4",
-            },
-        ],
-    },
-
-    {
-        id: 3,
-        title: "Our Work",
-        eyebrow: "THE WORK",
-        heading: "Research. Investigate. Explain.",
-        content:
-            "From public policy and infrastructure to climate, technology and society, our stories aim to connect the facts with the people affected by them.",
-        layout: "text-left",
-        showOnHome: true,
-        visible: true,
-        media: [
-            {
-                id: 4,
-                type: "image",
-                name: "field-report.jpg",
-                url: "/about-3.webp",
-            },
-            {
-                id: 5,
-                type: "video",
-                name: "field-report.mp4",
-                url: "/field-report.mp4",
-            },
-        ],
-    },
-]
+type AboutForm = ReturnType<typeof toForm>
 
 
 export default function AboutPage() {
+    const [data, setData] = React.useState<AboutAdminData | null>(null)
+    const [loadError, setLoadError] = React.useState<string | null>(null)
 
-    const [sections, setSections] =
-        React.useState<AboutSection[]>(initialSections)
+    React.useEffect(() => {
+        let ignore = false
+        fetchAbout().then(
+            (result) => !ignore && setData(result),
+            (err) => !ignore && setLoadError(errorText(err))
+        )
+        return () => {
+            ignore = true
+        }
+    }, [])
 
-    const [selectedId, setSelectedId] =
-        React.useState<number>(1)
+    async function retry() {
+        try {
+            setData(await fetchAbout())
+            setLoadError(null)
+        } catch (err) {
+            setLoadError(errorText(err))
+        }
+    }
 
-    const selectedSection =
-        sections.find((section) => section.id === selectedId)
-
-
-    /* =========================================================
-       UPDATE SECTION
-    ========================================================= */
-
-    function updateSection(
-        id: number,
-        updates: Partial<AboutSection>
-    ) {
-        setSections((current) =>
-            current.map((section) =>
-                section.id === id
-                    ? { ...section, ...updates }
-                    : section
-            )
+    if (!data) {
+        return (
+            <div className="min-h-full bg-zinc-50 p-6 dark:bg-black">
+                {loadError ? (
+                    <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-600">
+                        {loadError}
+                        <button type="button" onClick={retry} className="ml-3 underline">
+                            Retry
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex items-center justify-center gap-2 py-20 text-sm text-zinc-500">
+                        <Loader2 size={16} className="animate-spin" />
+                        Loading content…
+                    </div>
+                )}
+            </div>
         )
     }
 
+    return <AboutEditor initial={data} />
+}
 
-    /* =========================================================
-       ADD SECTION
-    ========================================================= */
 
-    function addSection() {
+/* =============================================================
+   EDITOR
+============================================================= */
 
-        const newSection: AboutSection = {
-            id: Date.now(),
-            title: "New Section",
-            eyebrow: "NEW SECTION",
-            heading: "Add your heading",
-            content: "Start writing your content here.",
-            layout: "text-left",
-            showOnHome: false,
-            visible: true,
-            media: [],
-        }
+function AboutEditor({ initial }: { initial: AboutAdminData }) {
+    const [page, setPage] = React.useState(initial.page)
+    const [form, setForm] = React.useState(() => toForm(initial.page))
+    const [activeTab, setActiveTab] = React.useState<TabId>("HERO")
+    const { pending, status, run } = useAction()
 
-        setSections((current) => [
-            ...current,
-            newSection,
-        ])
+    const set = <K extends keyof AboutForm>(key: K, value: AboutForm[K]) =>
+        setForm((current) => ({ ...current, [key]: value }))
 
-        setSelectedId(newSection.id)
+    async function put(body: object) {
+        const res = await api<{ page: AboutRow }>("/api/about", { method: "PUT", json: body })
+        setPage(res.page)
     }
 
+    // Saves just the image; the first save of the page needs the full copy too
+    const setHeroMedia = (heroMediaId: string | null) =>
+        put(page ? { heroMediaId } : { ...form, heroMediaId })
 
-    /* =========================================================
-       DELETE SECTION
-    ========================================================= */
-
-    function deleteSection(id: number) {
-
-        setSections((current) =>
-            current.filter((section) => section.id !== id)
-        )
-
-        if (selectedId === id) {
-
-            const next = sections.find(
-                (section) => section.id !== id
-            )
-
-            if (next) {
-                setSelectedId(next.id)
-            }
-        }
+    function reset() {
+        if (!confirm("Reset all About page copy to the defaults? Steps are kept.")) return
+        return run(async () => {
+            const res = await api<{ page: AboutRow }>("/api/about", { method: "DELETE" })
+            setPage(res.page)
+            setForm(toForm(res.page))
+        }, "Reset to default")
     }
 
 
     return (
         <div className="min-h-full bg-zinc-50 dark:bg-black">
 
-
-            {/* =====================================================
+            {/* =========================================================
                 HEADER
-            ===================================================== */}
+            ========================================================= */}
 
-            <header
-                className="
-                    sticky
-                    top-0
-                    z-30
-                    flex
-                    h-16
-                    items-center
-                    justify-between
-                    border-b
-                    border-zinc-200
-                    bg-white/95
-                    px-6
-                    backdrop-blur
-                    dark:border-zinc-800
-                    dark:bg-zinc-950/95
-                "
-            >
+            <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95">
 
-                <div>
+                <div className="flex h-16 items-center justify-between gap-4 px-6">
+                    <div>
+                        <p className="text-xs font-medium uppercase tracking-widest text-red-500">
+                            Website
+                        </p>
 
-                    <p className="text-xs font-medium uppercase tracking-widest text-red-500">
-                        Website
-                    </p>
+                        <h1 className="text-lg font-semibold">
+                            About Page
+                        </h1>
+                    </div>
 
-                    <h1 className="text-lg font-semibold">
-                        About Page
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <StatusText status={status} />
 
+                        <Link
+                            href="/about"
+                            target="_blank"
+                            className="inline-flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-xs font-medium transition hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"
+                        >
+                            <ExternalLink size={14} />
+                            View Page
+                        </Link>
+
+                        <SecondaryButton onClick={reset} disabled={pending}>
+                            <RotateCcw size={14} />
+                            Reset
+                        </SecondaryButton>
+
+                        <PrimaryButton onClick={() => run(() => put(form), "About page saved")} pending={pending}>
+                            <Save size={16} />
+                            Save Changes
+                        </PrimaryButton>
+                    </div>
                 </div>
 
-
-                <div className="flex items-center gap-3">
-
-                    <button
-                        className="
-                            flex
-                            items-center
-                            gap-2
-                            rounded-lg
-                            bg-red-600
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-white
-                            hover:bg-red-700
-                        "
-                    >
-
-                        <Save size={16} />
-
-                        Save Changes
-
-                    </button>
-
-                </div>
+                <nav className="flex gap-1 overflow-x-auto px-6">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-medium transition ${activeTab === tab.id
+                                ? "border-red-500 text-red-500"
+                                : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                                }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </nav>
 
             </header>
 
 
-            {/* =====================================================
+            {/* =========================================================
                 MAIN
-            ===================================================== */}
+            ========================================================= */}
 
-            <div
-                className="
-                    grid
-                    min-h-[calc(100vh-64px)]
-                    lg:grid-cols-[280px_1fr]
-                "
-            >
+            <main className="mx-auto w-full max-w-5xl px-6 py-8">
 
-
-                {/* ===================================================
-                    SECTION LIST
-                =================================================== */}
-
-                <aside
-                    className="
-                        border-r
-                        border-zinc-200
-                        bg-white
-                        dark:border-zinc-800
-                        dark:bg-zinc-950
-                    "
-                >
-
-                    <div
-                        className="
-                            flex
-                            items-center
-                            justify-between
-                            border-b
-                            border-zinc-200
-                            px-4
-                            py-4
-                            dark:border-zinc-800
-                        "
-                    >
-
-                        <div>
-
-                            <p className="text-sm font-semibold">
-                                Page Sections
-                            </p>
-
-                            <p className="mt-1 text-xs text-zinc-500">
-                                {sections.length} sections
-                            </p>
-
-                        </div>
-
-
-                        <button
-                            onClick={addSection}
-                            className="
-                                flex
-                                h-8
-                                w-8
-                                items-center
-                                justify-center
-                                rounded-lg
-                                bg-red-600
-                                text-white
-                                hover:bg-red-700
-                            "
-                        >
-
-                            <Plus size={16} />
-
-                        </button>
-
-                    </div>
-
-
-                    <div className="p-3">
-
-                        {sections.map((section, index) => {
-
-                            const active =
-                                selectedId === section.id
-
-                            return (
-
-                                <button
-                                    key={section.id}
-                                    onClick={() =>
-                                        setSelectedId(section.id)
-                                    }
-                                    className={`
-                                        mb-2
-                                        flex
-                                        w-full
-                                        items-center
-                                        gap-3
-                                        rounded-lg
-                                        border
-                                        p-3
-                                        text-left
-                                        transition
-
-                                        ${active
-                                            ? "border-red-500/30 bg-red-500/5"
-                                            : "border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                                        }
-                                    `}
-                                >
-
-                                    <GripVertical
-                                        size={15}
-                                        className="shrink-0 text-zinc-400"
-                                    />
-
-
-                                    <div
-                                        className="
-                                            flex
-                                            h-9
-                                            w-9
-                                            shrink-0
-                                            items-center
-                                            justify-center
-                                            rounded-md
-                                            bg-zinc-100
-                                            dark:bg-zinc-900
-                                        "
-                                    >
-
-                                        <LayoutPanelTop size={16} />
-
-                                    </div>
-
-
-                                    <div className="min-w-0 flex-1">
-
-                                        <p className="truncate text-sm font-medium">
-                                            {index + 1}. {section.title}
-                                        </p>
-
-                                        <p className="mt-1 text-[10px] text-zinc-500">
-
-                                            {section.showOnHome
-                                                ? "Shown on Home"
-                                                : "About page only"}
-
-                                        </p>
-
-                                    </div>
-
-
-                                    {section.showOnHome && (
-                                        <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                                    )}
-
-                                </button>
-
-                            )
-                        })}
-
-
-                        <button
-                            onClick={addSection}
-                            className="
-                                mt-2
-                                flex
-                                w-full
-                                items-center
-                                justify-center
-                                gap-2
-                                rounded-lg
-                                border
-                                border-dashed
-                                border-zinc-300
-                                py-3
-                                text-xs
-                                font-medium
-                                text-zinc-500
-                                hover:border-zinc-400
-                                hover:bg-zinc-50
-                                dark:border-zinc-700
-                                dark:hover:bg-zinc-900
-                            "
-                        >
-
-                            <Plus size={14} />
-
-                            Add Section
-
-                        </button>
-
-                    </div>
-
-                </aside>
-
-
-                {/* ===================================================
-                    EDITOR
-                =================================================== */}
-
-                {selectedSection && (
-
-                    <main
-                        className="
-                            overflow-y-auto
-                            bg-white
-                            dark:bg-zinc-950
-                        "
-                    >
-
-                        <div className="mx-auto max-w-4xl p-6">
-
-
-                            {/* SECTION HEADER */}
-
-                            <div className="mb-7 flex items-start justify-between">
-
-                                <div>
-
-                                    <p className="text-xs font-medium uppercase tracking-widest text-red-500">
-
-                                        Section{" "}
-                                        {sections.findIndex(
-                                            (s) =>
-                                                s.id === selectedSection.id
-                                        ) + 1}
-
-                                    </p>
-
-                                    <h2 className="mt-1 text-lg font-semibold">
-                                        {selectedSection.title}
-                                    </h2>
-
-                                </div>
-
-
-                                <button
-                                    onClick={() =>
-                                        deleteSection(selectedSection.id)
-                                    }
-                                    className="
-                                        rounded-lg
-                                        p-2
-                                        text-zinc-400
-                                        hover:bg-red-50
-                                        hover:text-red-500
-                                        dark:hover:bg-red-950/30
-                                    "
-                                >
-
-                                    <Trash2 size={16} />
-
-                                </button>
-
-                            </div>
-
-
-                            {/* =================================================
-                                CONTENT
-                            ================================================= */}
-
-                            <EditorGroup
-                                number="01"
-                                title="Content"
-                            >
-
-                                <Field label="Section Name">
-
-                                    <input
-                                        value={selectedSection.title}
-                                        onChange={(e) =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    title: e.target.value,
-                                                }
-                                            )
-                                        }
-                                        className={inputClass}
-                                    />
-
-                                </Field>
-
-
-                                <Field label="Eyebrow">
-
-                                    <input
-                                        value={selectedSection.eyebrow}
-                                        onChange={(e) =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    eyebrow: e.target.value,
-                                                }
-                                            )
-                                        }
-                                        className={inputClass}
-                                    />
-
-                                </Field>
-
-
-                                <Field label="Heading">
-
-                                    <textarea
-                                        rows={3}
-                                        value={selectedSection.heading}
-                                        onChange={(e) =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    heading: e.target.value,
-                                                }
-                                            )
-                                        }
-                                        className={textareaClass}
-                                    />
-
-                                </Field>
-
-
-                                <Field label="Content">
-
-                                    <textarea
-                                        rows={7}
-                                        value={selectedSection.content}
-                                        onChange={(e) =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    content: e.target.value,
-                                                }
-                                            )
-                                        }
-                                        className={textareaClass}
-                                    />
-
-                                </Field>
-
-                            </EditorGroup>
-
-
-                            {/* =================================================
-                                LAYOUT
-                            ================================================= */}
-
-                            <EditorGroup
-                                number="02"
-                                title="Layout"
-                            >
-
-                                <p className="mb-3 text-xs text-zinc-500">
-                                    Choose how content and media are arranged.
-                                </p>
-
-
-                                <div className="grid grid-cols-3 gap-2">
-
-                                    <LayoutButton
-                                        active={
-                                            selectedSection.layout === "text-left"
-                                        }
-                                        onClick={() =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    layout: "text-left",
-                                                }
-                                            )
-                                        }
-                                        label="Text Left"
-                                    />
-
-
-                                    <LayoutButton
-                                        active={
-                                            selectedSection.layout === "text-right"
-                                        }
-                                        onClick={() =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    layout: "text-right",
-                                                }
-                                            )
-                                        }
-                                        label="Text Right"
-                                    />
-
-
-                                    <LayoutButton
-                                        active={
-                                            selectedSection.layout === "center"
-                                        }
-                                        onClick={() =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    layout: "center",
-                                                }
-                                            )
-                                        }
-                                        label="Centered"
-                                    />
-
-                                </div>
-
-                            </EditorGroup>
-
-
-                            {/* =================================================
-                                MEDIA
-                            ================================================= */}
-
-                            <EditorGroup
-                                number="03"
-                                title="Media"
-                            >
-
-                                <div className="mb-4 flex items-center justify-between">
-
-                                    <div>
-
-                                        <p className="text-sm font-medium">
-                                            Section Media
-                                        </p>
-
-                                        <p className="mt-1 text-xs text-zinc-500">
-                                            Images and videos can be combined.
-                                        </p>
-
-                                    </div>
-
-
-                                    <button
-                                        className="
-                                            flex
-                                            items-center
-                                            gap-2
-                                            rounded-lg
-                                            border
-                                            border-zinc-200
-                                            px-3
-                                            py-2
-                                            text-xs
-                                            font-medium
-                                            hover:bg-zinc-100
-                                            dark:border-zinc-800
-                                            dark:hover:bg-zinc-900
-                                        "
-                                    >
-
-                                        <Upload size={14} />
-
-                                        Add Media
-
-                                    </button>
-
-                                </div>
-
-
-                                <div className="space-y-2">
-
-                                    {selectedSection.media.map((media) => (
-
-                                        <div
-                                            key={media.id}
-                                            className="
-                                                flex
-                                                items-center
-                                                gap-3
-                                                rounded-lg
-                                                border
-                                                border-zinc-200
-                                                p-2
-                                                dark:border-zinc-800
-                                            "
-                                        >
-
-                                            <div
-                                                className="
-                                                    flex
-                                                    h-12
-                                                    w-20
-                                                    shrink-0
-                                                    items-center
-                                                    justify-center
-                                                    overflow-hidden
-                                                    rounded-md
-                                                    bg-zinc-900
-                                                "
-                                            >
-
-                                                {media.type === "video" ? (
-                                                    <Play
-                                                        size={16}
-                                                        className="text-white"
-                                                        fill="white"
-                                                    />
-                                                ) : (
-                                                    <ImageIcon
-                                                        size={17}
-                                                        className="text-white"
-                                                    />
-                                                )}
-
-                                            </div>
-
-
-                                            <div className="min-w-0 flex-1">
-
-                                                <p className="truncate text-xs font-medium">
-                                                    {media.name}
-                                                </p>
-
-                                                <p className="mt-1 text-[10px] text-zinc-500">
-
-                                                    {media.type === "video"
-                                                        ? "Video"
-                                                        : "Image"}
-
-                                                </p>
-
-                                            </div>
-
-
-                                            <button
-                                                className="
-                                                    text-zinc-400
-                                                    hover:text-red-500
-                                                "
-                                            >
-
-                                                <MoreHorizontal size={16} />
-
-                                            </button>
-
-                                        </div>
-
-                                    ))}
-
-
-                                    {selectedSection.media.length === 0 && (
-
-                                        <div
-                                            className="
-                                                rounded-lg
-                                                border
-                                                border-dashed
-                                                border-zinc-300
-                                                px-5
-                                                py-8
-                                                text-center
-                                                dark:border-zinc-700
-                                            "
-                                        >
-
-                                            <ImageIcon
-                                                size={22}
-                                                className="mx-auto text-zinc-400"
-                                            />
-
-                                            <p className="mt-2 text-xs font-medium">
-                                                No media added
-                                            </p>
-
-                                            <p className="mt-1 text-[11px] text-zinc-500">
-                                                Add images or videos to this section.
-                                            </p>
-
-                                        </div>
-
-                                    )}
-
-                                </div>
-
-                            </EditorGroup>
-
-
-                            {/* =================================================
-                                HOMEPAGE VISIBILITY
-                            ================================================= */}
-
-                            <EditorGroup
-                                number="04"
-                                title="Homepage"
-                            >
-
-                                <div
-                                    className="
-                                        rounded-xl
-                                        border
-                                        border-zinc-200
-                                        p-4
-                                        dark:border-zinc-800
-                                    "
-                                >
-
-                                    <div className="flex items-start justify-between gap-4">
-
-                                        <div>
-
-                                            <div className="flex items-center gap-2">
-
-                                                <p className="text-sm font-medium">
-                                                    Show on Homepage
-                                                </p>
-
-                                            </div>
-
-                                            <p className="mt-1 text-xs leading-5 text-zinc-500">
-                                                Display this About section on your
-                                                homepage as well.
-                                            </p>
-
-                                        </div>
-
-
-                                        <Toggle
-                                            checked={selectedSection.showOnHome}
-                                            onChange={(checked) =>
-                                                updateSection(
-                                                    selectedSection.id,
-                                                    {
-                                                        showOnHome: checked,
-                                                    }
-                                                )
-                                            }
-                                        />
-
-                                    </div>
-
-
-                                    {selectedSection.showOnHome && (
-
-                                        <div className="mt-4 rounded-lg bg-red-500/5 p-3">
-
-                                            <p className="text-xs font-medium text-red-500">
-                                                Homepage enabled
-                                            </p>
-
-                                            <p className="mt-1 text-[11px] leading-5 text-zinc-500">
-                                                This section will be available to render
-                                                on the public homepage.
-                                            </p>
-
-                                        </div>
-
-                                    )}
-
-                                </div>
-
-                            </EditorGroup>
-
-
-                            {/* =================================================
-                                VISIBILITY
-                            ================================================= */}
-
-                            <EditorGroup
-                                number="05"
-                                title="Visibility"
-                            >
-
-                                <div className="flex items-center justify-between">
-
-                                    <div>
-
-                                        <p className="text-sm font-medium">
-                                            Publish Section
-                                        </p>
-
-                                        <p className="mt-1 text-xs text-zinc-500">
-                                            Hide this section without deleting it.
-                                        </p>
-
-                                    </div>
-
-
-                                    <Toggle
-                                        checked={selectedSection.visible}
-                                        onChange={(checked) =>
-                                            updateSection(
-                                                selectedSection.id,
-                                                {
-                                                    visible: checked,
-                                                }
-                                            )
-                                        }
-                                    />
-
-                                </div>
-
-                            </EditorGroup>
-
-                        </div>
-
-                    </main>
-
+                {!page && (
+                    <p className="mb-6 rounded-lg border border-zinc-200 bg-white p-4 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
+                        Not saved yet — the site shows this default copy. Click <strong>Save Changes</strong> to store it.
+                    </p>
                 )}
 
-            </div>
+                {/* Every tab stays mounted so unsaved edits survive tab switches */}
+
+                <TabPanel active={activeTab === "HERO"}>
+                    <EditorSection number="01" title="Hero Content">
+                        <div className="space-y-5">
+                            <TextField
+                                label="Eyebrow"
+                                value={form.heroTag}
+                                onChange={(v) => set("heroTag", v)}
+                                maxLength={40}
+                            />
+                            <TextAreaField
+                                label="Title (new lines are kept)"
+                                value={form.heroTitle}
+                                onChange={(v) => set("heroTitle", v)}
+                                rows={2}
+                                maxLength={120}
+                            />
+                            <TextAreaField
+                                label="Description"
+                                value={form.heroDesc}
+                                onChange={(v) => set("heroDesc", v)}
+                                rows={4}
+                                maxLength={400}
+                            />
+                        </div>
+                    </EditorSection>
+
+                    <EditorSection
+                        number="02"
+                        title="Background Image"
+                        description={`Uploads are saved immediately. Without an upload the page uses ${page?.heroImage ?? defaultAboutPage.heroImage}.`}
+                    >
+                        <p className={`${labelClass} mb-2 block`}>Hero image</p>
+                        <MediaUpload
+                            kind="image"
+                            media={page?.heroMedia}
+                            onUploaded={(media) => setHeroMedia(media.id)}
+                            onRemove={() => setHeroMedia(null)}
+                        />
+                    </EditorSection>
+                </TabPanel>
+
+
+                <TabPanel active={activeTab === "PROCESS"}>
+                    <EditorSection number="01" title="Section Header">
+                        <div className="space-y-5">
+                            <TextField
+                                label="Eyebrow"
+                                value={form.processTag}
+                                onChange={(v) => set("processTag", v)}
+                                maxLength={40}
+                            />
+                            <TextField
+                                label="Title"
+                                value={form.processTitle}
+                                onChange={(v) => set("processTitle", v)}
+                                maxLength={120}
+                            />
+                            <TextAreaField
+                                label="Description"
+                                value={form.processDesc}
+                                onChange={(v) => set("processDesc", v)}
+                                rows={3}
+                                maxLength={400}
+                            />
+                            <ToggleRow
+                                title="Show Section"
+                                description="Display “How We Work” on the About page"
+                                checked={form.processVisible}
+                                onChange={(v) => set("processVisible", v)}
+                            />
+                        </div>
+                    </EditorSection>
+
+                    <CollectionEditor
+                        endpoint="/api/about/steps"
+                        number="02"
+                        title="Steps"
+                        description="Saved individually. Numbered automatically in order."
+                        itemName="Step"
+                        initialItems={initial.steps}
+                        fields={[
+                            { name: "title", label: "Title", type: "text", maxLength: 60, placeholder: "Research" },
+                            { name: "description", label: "Description", type: "textarea", maxLength: 400 },
+                        ]}
+                        summary={(step) => ({ primary: step.title, secondary: step.description })}
+                    />
+                </TabPanel>
+
+
+                <TabPanel active={activeTab === "CTA"}>
+                    <EditorSection number="01" title="Content">
+                        <div className="space-y-5">
+                            <TextField
+                                label="Eyebrow"
+                                value={form.ctaTag}
+                                onChange={(v) => set("ctaTag", v)}
+                                maxLength={40}
+                            />
+                            <TextField
+                                label="Title"
+                                value={form.ctaTitle}
+                                onChange={(v) => set("ctaTitle", v)}
+                                maxLength={120}
+                            />
+                            <TextAreaField
+                                label="Description"
+                                value={form.ctaDesc}
+                                onChange={(v) => set("ctaDesc", v)}
+                                rows={3}
+                                maxLength={400}
+                            />
+                        </div>
+                    </EditorSection>
+
+                    <EditorSection number="02" title="Buttons">
+                        <div className="grid gap-5 md:grid-cols-2">
+                            <div className="space-y-3">
+                                <TextField
+                                    label="Primary Button"
+                                    value={form.ctaBtn1}
+                                    onChange={(v) => set("ctaBtn1", v)}
+                                    maxLength={40}
+                                />
+                                <TextField
+                                    label="Primary URL"
+                                    value={form.ctaBtn1Link}
+                                    onChange={(v) => set("ctaBtn1Link", v)}
+                                    placeholder="/contact"
+                                    icon={<Link2 size={15} />}
+                                />
+                            </div>
+
+                            <div className="space-y-3">
+                                <TextField
+                                    label="Secondary Button"
+                                    value={form.ctaBtn2}
+                                    onChange={(v) => set("ctaBtn2", v)}
+                                    maxLength={40}
+                                />
+                                <TextField
+                                    label="Secondary URL"
+                                    value={form.ctaBtn2Link}
+                                    onChange={(v) => set("ctaBtn2Link", v)}
+                                    placeholder="/investigations"
+                                    icon={<Link2 size={15} />}
+                                />
+                            </div>
+                        </div>
+                    </EditorSection>
+
+                    <EditorSection number="03" title="Visibility">
+                        <ToggleRow
+                            title="Show Call to Action"
+                            description="Display the closing section on the About page"
+                            checked={form.ctaVisible}
+                            onChange={(v) => set("ctaVisible", v)}
+                        />
+                    </EditorSection>
+                </TabPanel>
+
+
+                <TabPanel active={activeTab === "BLOCKS"}>
+                    <EditorSection
+                        number="01"
+                        title="Shared Blocks"
+                        description="These blocks reuse the home page content. Their text is edited on the Home page dashboard; here you only choose whether they appear on /about."
+                    >
+                        <div className="space-y-3">
+                            <ToggleRow
+                                title="About Highlights"
+                                description="The centre image with four highlights, below the hero"
+                                checked={form.showAbout}
+                                onChange={(v) => set("showAbout", v)}
+                            />
+                            <ToggleRow
+                                title="Metrics"
+                                description="Key numbers, after “How We Work”"
+                                checked={form.showMetrics}
+                                onChange={(v) => set("showMetrics", v)}
+                            />
+
+                            <Link
+                                href="/dashboard/home"
+                                className="inline-flex items-center gap-2 text-xs font-medium text-red-500 hover:underline"
+                            >
+                                Edit the shared content on the Home page →
+                            </Link>
+                        </div>
+                    </EditorSection>
+                </TabPanel>
+
+            </main>
 
         </div>
     )
 }
 
 
-/* =============================================================
-   EDITOR GROUP
-============================================================= */
-
-function EditorGroup({
-    number,
-    title,
-    children,
-}: {
-    number: string
-    title: string
-    children: React.ReactNode
-}) {
-
-    return (
-        <section className="border-t border-zinc-200 pt-6 dark:border-zinc-800">
-
-            <div className="mb-5 flex items-center gap-3">
-
-                <span className="text-[10px] font-semibold tracking-widest text-red-500">
-                    {number}
-                </span>
-
-                <h3 className="text-sm font-semibold">
-                    {title}
-                </h3>
-
-            </div>
-
-            {children}
-
-        </section>
-    )
+function TabPanel({ active, children }: { active: boolean; children: React.ReactNode }) {
+    return <div className={active ? "" : "hidden"}>{children}</div>
 }
-
-
-/* =============================================================
-   FIELD
-============================================================= */
-
-function Field({
-    label,
-    children,
-}: {
-    label: string
-    children: React.ReactNode
-}) {
-
-    return (
-        <div className="mb-5 space-y-2">
-
-            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                {label}
-            </label>
-
-            {children}
-
-        </div>
-    )
-}
-
-
-/* =============================================================
-   LAYOUT BUTTON
-============================================================= */
-
-function LayoutButton({
-    active,
-    onClick,
-    label,
-}: {
-    active: boolean
-    onClick: () => void
-    label: string
-}) {
-
-    return (
-        <button
-            onClick={onClick}
-            className={`
-                rounded-lg
-                border
-                px-2
-                py-3
-                text-xs
-                font-medium
-                transition
-
-                ${active
-                    ? "border-red-500 bg-red-500/5 text-red-500"
-                    : "border-zinc-200 hover:bg-zinc-100 dark:border-zinc-800 dark:hover:bg-zinc-900"
-                }
-            `}
-        >
-
-            {label}
-
-        </button>
-    )
-}
-
-
-/* =============================================================
-   TOGGLE
-============================================================= */
-
-function Toggle({
-    checked,
-    onChange,
-}: {
-    checked: boolean
-    onChange: (value: boolean) => void
-}) {
-
-    return (
-        <button
-            type="button"
-            onClick={() => onChange(!checked)}
-            className={`
-                relative
-                h-5
-                w-9
-                shrink-0
-                rounded-full
-                transition
-
-                ${checked
-                    ? "bg-red-600"
-                    : "bg-zinc-300 dark:bg-zinc-700"
-                }
-            `}
-        >
-
-            <span
-                className={`
-                    absolute
-                    top-0.5
-                    h-4
-                    w-4
-                    rounded-full
-                    bg-white
-                    shadow
-                    transition
-
-                    ${checked
-                        ? "left-[18px]"
-                        : "left-0.5"
-                    }
-                `}
-            />
-
-        </button>
-    )
-}
-
-
-/* =============================================================
-   INPUT
-============================================================= */
-
-const inputClass = `
-    w-full
-    rounded-lg
-    border
-    border-zinc-200
-    bg-white
-    px-3
-    py-2.5
-    text-sm
-    outline-none
-    focus:border-red-500
-    focus:ring-2
-    focus:ring-red-500/10
-    dark:border-zinc-800
-    dark:bg-zinc-900
-`
-
-
-/* =============================================================
-   TEXTAREA
-============================================================= */
-
-const textareaClass = `
-    w-full
-    resize-none
-    rounded-lg
-    border
-    border-zinc-200
-    bg-white
-    px-3
-    py-2.5
-    text-sm
-    leading-6
-    outline-none
-    focus:border-red-500
-    focus:ring-2
-    focus:ring-red-500/10
-    dark:border-zinc-800
-    dark:bg-zinc-900
-`

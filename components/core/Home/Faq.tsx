@@ -2,69 +2,34 @@
 
 import { useState } from "react";
 import AnimatedDotText from "@/components/common/AnimateDot";
+import type { HomeSectionData } from "@/lib/home/queries";
 
-export default function Faqs() {
+type Faq = { id: string; question: string; answer: string };
+
+export default function Faqs({
+    section,
+    faqs,
+}: {
+    section: HomeSectionData;
+    faqs: Faq[];
+}) {
     return (
         <div className="min-h-screen relative bg-background text-white">
             <div className="flex flex-col items-center justify-center mt-30">
-                <AnimatedDotText text="FAQS" className="mb-2" />
-                <h2 className="uppercase text-4xl w-full text-center">Got Questions?</h2>
-                <h2 className="uppercase text-4xl w-full text-center">We've got answers.</h2>
-                <p className="text-[16px] text-[#c9c9c9] w-[40%] text-center mt-3">Quick answers to the most common Questions about the podcast the content, and how to get involved.</p>
+                {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
+                <h2 className="uppercase text-4xl w-[50%] text-center whitespace-pre-line">{section.title}</h2>
+                {section.description && (
+                    <p className="text-[16px] text-[#c9c9c9] w-[40%] text-center mt-3">{section.description}</p>
+                )}
             </div>
 
             <div className="px-39 py-6">
-                <FAQAccordion />
+                <FAQAccordion faqs={faqs} />
             </div>
 
         </div>
     )
 }
-
-
-
-const faqs = [
-    {
-        question: "What is this podcast about?",
-        answer:
-            "This podcast explores historical events, people, and ideas that helped shape the world we live in today.",
-    },
-    {
-        question: "How often are new episodes released?",
-        answer:
-            "New episodes are released on a regular schedule so listeners can keep up with each new story.",
-    },
-    {
-        question: "What kind of topics do you cover?",
-        answer:
-            "We cover history, politics, economics, society, conflicts, important events, and the stories behind them.",
-    },
-    {
-        question: "Is this podcast suitable for beginners?",
-        answer:
-            "Yes. Each episode is designed to explain complex topics in a simple and approachable way.",
-    },
-    {
-        question: "Where can I listen to the podcast?",
-        answer:
-            "You can listen to the podcast on major podcast platforms and streaming services.",
-    },
-    {
-        question: "Do you include sources or references?",
-        answer:
-            "Yes. We use credible sources, research papers, reports, books, and publicly available information whenever possible.",
-    },
-    {
-        question: "Can I suggest a topic or guest?",
-        answer:
-            "Absolutely. We welcome topic suggestions and ideas for future episodes.",
-    },
-    {
-        question: "Is there a way to contact the team?",
-        answer:
-            "Yes. You can contact the team through the contact page and send us your questions, suggestions, or feedback.",
-    },
-];
 
 function FAQItem({
     question,
@@ -140,7 +105,7 @@ function FAQItem({
     );
 }
 
-export function FAQAccordion() {
+export function FAQAccordion({ faqs }: { faqs: Faq[] }) {
 
     const [openItems, setOpenItems] = useState<number[]>([0, 1]);
 
@@ -165,7 +130,7 @@ export function FAQAccordion() {
 
                         return (
                             <FAQItem
-                                key={faq.question}
+                                key={faq.id}
                                 question={faq.question}
                                 answer={faq.answer}
                                 isOpen={openItems.includes(actualIndex)}
@@ -182,7 +147,7 @@ export function FAQAccordion() {
 
                         return (
                             <FAQItem
-                                key={faq.question}
+                                key={faq.id}
                                 question={faq.question}
                                 answer={faq.answer}
                                 isOpen={openItems.includes(actualIndex)}

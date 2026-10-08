@@ -8,15 +8,17 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import type { HomeSectionData } from "@/lib/home/queries";
 
-export default function ContactUs() {
+export default function ContactUs({ section }: { section: HomeSectionData }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
             <div className="flex flex-col items-center justify-center mt-30">
-                <AnimatedDotText text="Contact" className="mb-2" />
-                <h2 className="uppercase text-4xl w-full text-center">Let's Connect</h2>
-                {/* <h2 className="uppercase text-4xl w-full text-center">We've got answers.</h2> */}
-                <p className="text-[16px] text-[#c9c9c9] w-[30%] text-center mt-3">Have a question, suggestion, or collaboration idea? Reach out and we’ll get back to you.</p>
+                {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
+                <h2 className="uppercase text-4xl w-full text-center">{section.title}</h2>
+                {section.description && (
+                    <p className="text-[16px] text-[#c9c9c9] w-[30%] text-center mt-3">{section.description}</p>
+                )}
             </div>
 
             <div className="w-[50%] flex flex-col items-center justify-center mx-auto py-10">

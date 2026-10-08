@@ -15,7 +15,7 @@ export default function PageHero({ eyebrow, title, description, image = "/hero.w
         >
             <div className="relative z-10 w-full md:w-[60%]">
                 <AnimatedDotText text={eyebrow} className="mb-4" textClassName="font-light text-sm" />
-                <h1 className="mb-4 text-4xl uppercase md:text-6xl">{title}</h1>
+                <h1 className="mb-4 whitespace-pre-line text-4xl uppercase md:text-6xl">{title}</h1>
                 <p className="text-[16px] uppercase text-gray-400 md:w-[80%]">{description}</p>
             </div>
         </section>

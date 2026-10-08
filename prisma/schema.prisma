@@ -6,11 +6,54 @@ datasource db {
   provider = "postgresql"
 }
 
+/**
+ * |--------------------------------------------------------------------------
+ * | AUTH
+ * |--------------------------------------------------------------------------
+ * | Dashboard admins. Accounts are created with `npm run admin create`.
+ * | Login = email + password, then a Google Authenticator (TOTP) code.
+ */
+
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+
+  passwordHash String?
+
+  // TOTP secrets are AES-GCM encrypted with AUTH_SECRET
+  totpSecret        String?
+  totpPendingSecret String? // generated during setup, promoted once a code is verified
+  totpEnabled       Boolean @default(false)
+  totpLastCounter   Int? // last accepted time step — blocks code replay
+
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+
+  sessions Session[]
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  // SHA-256 of the cookie token — the raw token is never stored
+  id String @id
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stage     SessionStage
+  expiresAt DateTime
+
+  userAgent String?
+  ipAddress String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 /**
@@ -42,7 +85,10 @@ model Media {
   folder String?
 
   // Relations
-  homeHeroMedia HomeHeroMedia[]
+  homeHeroMedia    HomeHeroMedia[]
+  homeSections     HomeSection[]
+  homeTestimonials HomeTestimonial[]
+  aboutPages       AboutPage[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,6 +103,7 @@ model Media {
 model HomeHero {
   id String @id @default(cuid())
 
+  eyebrow     String?
   headline    String
   description String
 
@@ -68,7 +115,12 @@ model HomeHero {
 
   backgroundType HeroBackgroundType @default(IMAGE)
 
-  darkOverlay Boolean @default(false)
+  darkOverlay    Boolean @default(false)
+  overlayOpacity Int     @default(65) // 0–100, used when darkOverlay is on
+
+  isVisible Boolean @default(true)
+  autoplay  Boolean @default(true)
+  loop      Boolean @default(true)
 
   media HomeHeroMedia[]
 
@@ -106,9 +158,257 @@ model HomeHeroMedia {
 
 /**
  * |--------------------------------------------------------------------------
+ * | HOME SECTIONS
+ * |--------------------------------------------------------------------------
+ * | Header copy for every home page section below the hero.
+ * | One row per section, identified by `key`.
+ * | The featured videos grid itself comes from the YouTube API — only the
+ * | section header is stored here.
+ */
+
+model HomeSection {
+  id String @id @default(cuid())
+
+  key HomeSectionKey @unique
+
+  eyebrow     String?
+  title       String
+  description String?
+
+  // Optional image for the section (e.g. About centre image)
+  mediaId String?
+  media   Media?  @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mediaId])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | HOME METRICS
+ * |--------------------------------------------------------------------------
+ */
+
+model HomeMetric {
+  id String @id @default(cuid())
+
+  title String
+  value String
+
+  order     Int     @default(0)
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | HOME ABOUT ITEMS
+ * |--------------------------------------------------------------------------
+ */
+
+model HomeAboutItem {
+  id String @id @default(cuid())
+
+  title       String
+  description String
+
+  order     Int     @default(0)
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | HOME TESTIMONIALS
+ * |--------------------------------------------------------------------------
+ */
+
+model HomeTestimonial {
+  id String @id @default(cuid())
+
+  name String
+  text String
+
+  // Static path in /public (e.g. /testimonials/x.jpg); used when no avatar is uploaded
+  image String?
+
+  avatarId String?
+  avatar   Media?  @relation(fields: [avatarId], references: [id], onDelete: SetNull)
+
+  order     Int     @default(0)
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([avatarId])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | HOME FAQS
+ * |--------------------------------------------------------------------------
+ */
+
+model HomeFaq {
+  id String @id @default(cuid())
+
+  question String
+  answer   String
+
+  order     Int     @default(0)
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | ABOUT PAGE
+ * |--------------------------------------------------------------------------
+ * | Singleton (id = "about"). The "About" highlights and "Metrics" blocks on
+ * | this page reuse the home page content (HomeSection / HomeAboutItem /
+ * | HomeMetric) — only their visibility on /about is stored here.
+ */
+
+model AboutPage {
+  id String @id @default("about")
+
+  // Hero
+  heroTag     String
+  heroTitle   String
+  heroDesc    String
+  heroImage   String // /public path, used when no image is uploaded
+  heroMediaId String?
+  heroMedia   Media?  @relation(fields: [heroMediaId], references: [id], onDelete: SetNull)
+
+  // How we work
+  processTag     String
+  processTitle   String
+  processDesc    String
+  processVisible Boolean @default(true)
+
+  // Call to action
+  ctaTag      String
+  ctaTitle    String
+  ctaDesc     String
+  ctaBtn1     String
+  ctaBtn1Link String
+  ctaBtn2     String
+  ctaBtn2Link String
+  ctaVisible  Boolean @default(true)
+
+  // Shared home blocks shown on /about
+  showAbout   Boolean @default(true)
+  showMetrics Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([heroMediaId])
+}
+
+model AboutStep {
+  id          String @id @default(cuid())
+  title       String
+  description String
+
+  order     Int     @default(0)
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+/**
+ * |--------------------------------------------------------------------------
+ * | LEGACY
+ * |--------------------------------------------------------------------------
+ * | HomePage is superseded by HomeHero + HomeSection (its content was copied
+ * | over by the home_page_cms migration). HomeVideo will be replaced by the
+ * | YouTube API. Kept so no data is dropped — safe to remove later.
+ */
+
+model HomePage {
+  id           String   @id @default("home")
+  heroTag      String
+  heroTitle    String
+  heroDesc     String
+  heroBtn1     String
+  heroBtn1Link String
+  heroBtn2     String
+  heroBtn2Link String
+  heroImage    String
+  videosTag    String
+  videosTitle  String
+  metricsTag   String
+  metricsTitle String
+  metricsDesc  String
+  aboutTag     String
+  aboutTitle   String
+  aboutDesc    String
+  aboutImage   String
+  reviewsTag   String
+  reviewsTitle String
+  reviewsDesc  String
+  faqTag       String
+  faqTitle     String
+  faqDesc      String
+  contactTag   String
+  contactTitle String
+  contactDesc  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model HomeVideo {
+  id          String   @id
+  order       Int
+  title       String
+  description String
+  thumbnail   String
+  youtubeUrl  String
+  duration    String
+  publishedAt DateTime @db.Date
+}
+
+/**
+ * |--------------------------------------------------------------------------
  * | ENUMS
  * |--------------------------------------------------------------------------
  */
+
+enum SessionStage {
+  PENDING_2FA // password checked, waiting for the authenticator code
+  ACTIVE
+}
+
+enum HomeSectionKey {
+  FEATURED_VIDEOS
+  METRICS
+  ABOUT
+  TESTIMONIALS
+  FAQ
+  CONTACT
+}
 
 enum MediaResourceType {
   IMAGE

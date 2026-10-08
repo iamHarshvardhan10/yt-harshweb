@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import PageHero from "@/components/common/PageHero";
 import ContactUs from "@/components/core/Home/ContactUs";
 import Faqs from "@/components/core/Home/Faq";
+import { getHomePageData } from "@/lib/home/queries";
 
 export const metadata: Metadata = {
     title: "Contact - Harsh Bhosale",
@@ -30,7 +31,10 @@ const channels = [
     },
 ];
 
-export default function ContactPage() {
+export default async function ContactPage() {
+    // Contact form header & FAQs share their content with the home page
+    const { sections, faqs } = await getHomePageData();
+
     return (
         <>
             <PageHero
@@ -58,8 +62,8 @@ export default function ContactPage() {
                 </div>
             </section>
 
-            <ContactUs />
-            <Faqs />
+            <ContactUs section={sections.CONTACT} />
+            {faqs.length > 0 && <Faqs section={sections.FAQ} faqs={faqs} />}
         </>
     );
 }

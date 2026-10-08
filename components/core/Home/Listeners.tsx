@@ -1,25 +1,37 @@
 "use client";
 import AnimatedDotText from "@/components/common/AnimateDot";
 import Image from "next/image";
+import type { HomeTestimonial, Media } from "@prisma/client";
+import type { HomeSectionData } from "@/lib/home/queries";
 
-export default function Listerners() {
+type Testimonial = HomeTestimonial & { avatar: Media | null };
+
+export default function Listerners({
+    section,
+    testimonials,
+}: {
+    section: HomeSectionData;
+    testimonials: Testimonial[];
+}) {
     return (
         <div className="px-26.5 bg-background text-white">
             <div className="flex items-center justify-between w-full">
                 <div className="flex flex-col w-[50%]">
-                    <AnimatedDotText text="reviews" />
-                    <h3 className="text-[44px] leading-[48.4px] tracking-[-2.2px] uppercase w-[60%]">A few words from our Listeners</h3>
+                    {section.eyebrow && <AnimatedDotText text={section.eyebrow} />}
+                    <h3 className="text-[44px] leading-[48.4px] tracking-[-2.2px] uppercase w-[60%]">{section.title}</h3>
                 </div>
                 <div className="w-[25%] flex items-center mt-10">
-                    <p className="text-[16px] leading-[22.4px] tracking-[-0.16px] uppercase text-[#c9c9c9]">
-                        Thoughtful feedback from people who connect with the podcast, the stories, and the way the past is brought to life
-                    </p>
+                    {section.description && (
+                        <p className="text-[16px] leading-[22.4px] tracking-[-0.16px] uppercase text-[#c9c9c9]">
+                            {section.description}
+                        </p>
+                    )}
                 </div>
 
             </div>
 
             <div>
-                <TestimonialsMarquee />
+                <TestimonialsMarquee testimonials={testimonials} />
             </div>
 
 
@@ -30,51 +42,39 @@ export default function Listerners() {
 
 
 
-const testimonials = [
-    {
-        name: "Sofía Torres",
-        image: "/testimonials/testimonials_01.jpg",
-        text: "I LOVE HOW THE SHOW MAKES HISTORICAL TOPICS FEEL INTERESTING WITHOUT BEING OVERWHELMING.",
-    },
-    {
-        name: "Laura Méndez",
-        image: "/testimonials/testimonials_02.jpg",
-        text: "THE STORYTELLING IS THOUGHTFUL, WELL-PACED, AND GENUINELY ENJOYABLE.",
-    },
-    {
-        name: "Carlos Rivera",
-        image: "/testimonials/testimonials_03.jpg",
-        text: "A PERFECT BALANCE OF FACTS, CONTEXT, AND NARRATIVE.",
-    },
-    {
-        name: "Daniel Costa",
-        image: "/testimonials/testimonials_04.jpg",
-        text: "I ALWAYS LEARN SOMETHING NEW WHEN I LISTEN.",
-    },
-    {
-        name: "Valentina Ruiz",
-        image: "/testimonials/testimonials_02.jpg",
-        text: "ONE OF THE MOST APPROACHABLE HISTORY PODCASTS I'VE FOUND.",
-    },
-];
+function initials(name: string) {
+    return name
+        .split(/\s+/)
+        .map((part) => part[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+}
 
 function TestimonialCard({
     testimonial,
 }: {
-    testimonial: (typeof testimonials)[number];
+    testimonial: Testimonial;
 }) {
+    const imageSrc = testimonial.avatar?.secureUrl ?? testimonial.image;
+
     return (
         <div className="group flex  h-45 w-[590px] shrink-0 flex-col justify-between border border-white/30 bg-black p-6 transition-colors duration-300 hover:border-white/60">
 
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <div className="relative h-14 w-14 overflow-hidden rounded-full">
-                        <Image
-                            src={testimonial.image}
-                            alt={testimonial.name}
-                            fill
-                            className="object-cover"
-                        />
+                    <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-white/10 font-mono text-sm">
+                        {imageSrc ? (
+                            <Image
+                                src={imageSrc}
+                                alt={testimonial.name}
+                                fill
+                                sizes="56px"
+                                className="object-cover"
+                            />
+                        ) : (
+                            initials(testimonial.name)
+                        )}
                     </div>
 
                     <h3 className="font-mono text-[16px] font-semibold text-white">
@@ -98,14 +98,14 @@ function TestimonialCard({
             </div>
 
 
-            <p className="max-w-130 font-mono text-[16px] font-semibold leading-normal text-white">
-                "{testimonial.text}"
+            <p className="max-w-130 font-mono text-[16px] font-semibold uppercase leading-normal text-white">
+                &ldquo;{testimonial.text}&rdquo;
             </p>
         </div>
     );
 }
 
-export function TestimonialsMarquee() {
+export function TestimonialsMarquee({ testimonials }: { testimonials: Testimonial[] }) {
     return (
         <section className="relative w-full overflow-hidden bg-black py-10">
 
@@ -116,16 +116,16 @@ export function TestimonialsMarquee() {
             <div className="marquee-wrapper mb-5">
                 <div className="marquee marquee-left">
 
-                    {testimonials.map((testimonial, index) => (
+                    {testimonials.map((testimonial) => (
                         <TestimonialCard
-                            key={`row1-${index}`}
+                            key={`row1-${testimonial.id}`}
                             testimonial={testimonial}
                         />
                     ))}
 
-                    {testimonials.map((testimonial, index) => (
+                    {testimonials.map((testimonial) => (
                         <TestimonialCard
-                            key={`row1-copy-${index}`}
+                            key={`row1-copy-${testimonial.id}`}
                             testimonial={testimonial}
                         />
                     ))}
@@ -136,17 +136,17 @@ export function TestimonialsMarquee() {
             <div className="marquee-wrapper">
                 <div className="marquee marquee-right">
 
-                    {testimonials.map((testimonial, index) => (
+                    {testimonials.map((testimonial) => (
                         <TestimonialCard
-                            key={`row2-${index}`}
+                            key={`row2-${testimonial.id}`}
                             testimonial={testimonial}
                         />
                     ))}
 
 
-                    {testimonials.map((testimonial, index) => (
+                    {testimonials.map((testimonial) => (
                         <TestimonialCard
-                            key={`row2-copy-${index}`}
+                            key={`row2-copy-${testimonial.id}`}
                             testimonial={testimonial}
                         />
                     ))}
