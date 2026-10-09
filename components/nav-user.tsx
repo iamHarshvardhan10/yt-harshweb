@@ -21,7 +21,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react"
+import Link from "next/link"
+import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon } from "lucide-react"
 
 function initials(name: string) {
   return name.split(/\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()
@@ -37,7 +38,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
-  const [admin, setAdmin] = React.useState<{ name: string; email: string } | null>(null)
+  const [admin, setAdmin] = React.useState<{ name: string; email: string; avatar: string | null } | null>(null)
   const [signingOut, setSigningOut] = React.useState(false)
 
   // The signed-in admin (the static user is only shown until this loads)
@@ -47,7 +48,11 @@ export function NavUser({
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => !ignore && data?.user && setAdmin(data.user))
       .catch(() => {})
+    // Settings → Profile announces saves so the menu updates without a reload
+    const onProfile = (e: Event) => setAdmin((current) => ({ ...current!, ...(e as CustomEvent).detail }))
+    window.addEventListener("admin-profile", onProfile)
     return () => {
+      window.removeEventListener("admin-profile", onProfile)
       ignore = true
     }
   }, [])
@@ -71,7 +76,7 @@ export function NavUser({
             }
           >
             <Avatar>
-              <AvatarImage src={fallbackUser.avatar} alt={name} />
+              <AvatarImage src={admin ? admin.avatar ?? undefined : fallbackUser.avatar} alt={name} />
               <AvatarFallback>{initials(name)}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
@@ -91,6 +96,10 @@ export function NavUser({
               <DropdownMenuLabel>Signed in as {email}</DropdownMenuLabel>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
+            <DropdownMenuItem render={<Link href="/dashboard/settings" />}>
+              <SettingsIcon />
+              Settings
+            </DropdownMenuItem>
             <DropdownMenuItem variant="destructive" disabled={signingOut} onClick={logout}>
               <LogOutIcon />
               {signingOut ? "Signing out…" : "Log out"}

@@ -2,31 +2,35 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { investigations } from "@/app/utils/constant";
+import { getPublishedInvestigation } from "@/lib/investigations/queries";
 import PageHero from "@/components/common/PageHero";
 import InvestigationTabs from "@/components/core/Investigations/InvestigationTabs";
 
+// Pages are rendered on first visit, then cached until the dashboard changes an investigation
 export function generateStaticParams() {
-    return investigations.map((item) => ({ slug: item.slug }));
+    return [];
 }
 
 export async function generateMetadata({ params }: PageProps<"/investigations/[slug]">): Promise<Metadata> {
-    const { slug } = await params;
-    const investigation = investigations.find((item) => item.slug === slug);
+    const investigation = await getPublishedInvestigation((await params).slug);
+    if (!investigation) return { title: "Investigation not found" };
 
     return {
-        title: investigation ? `${investigation.title} - Harsh Bhosale` : "Investigation not found",
-        description: investigation?.summary,
+        title: `${investigation.metaTitle ?? investigation.title} - Harsh Bhosale`,
+        description: investigation.metaDescription ?? investigation.summary,
+        openGraph: { images: investigation.video ? [investigation.thumbnail] : undefined },
     };
 }
 
 export default async function InvestigationPage({ params, searchParams }: PageProps<"/investigations/[slug]">) {
     const { slug } = await params;
-    const { tab } = await searchParams;
+    const { tab, lang } = await searchParams;
 
-    const investigation = investigations.find((item) => item.slug === slug);
-
+    const investigation = await getPublishedInvestigation(slug);
     if (!investigation) notFound();
+
+    // Open on the report when there's no video to watch
+    const initialTab = tab === "read" || !investigation.video ? "read" : "watch";
 
     return (
         <>
@@ -45,7 +49,8 @@ export default async function InvestigationPage({ params, searchParams }: PagePr
 
             <InvestigationTabs
                 investigation={investigation}
-                initialTab={tab === "read" ? "read" : "watch"}
+                initialTab={initialTab}
+                initialLanguage={lang === "hi" ? "HI" : "EN"}
             />
         </>
     );

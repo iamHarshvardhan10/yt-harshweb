@@ -4,11 +4,14 @@ import PageHero from "@/components/common/PageHero";
 import ContactUs from "@/components/core/Home/ContactUs";
 import Faqs from "@/components/core/Home/Faq";
 import { getHomePageData } from "@/lib/home/queries";
+import { getChannelLink } from "@/lib/youtube";
 
 export const metadata: Metadata = {
     title: "Contact - Harsh Bhosale",
     description: "Questions, story tips and collaborations.",
 };
+
+const youtube = getChannelLink();
 
 const channels = [
     {
@@ -26,8 +29,8 @@ const channels = [
     {
         id: "03",
         title: "YouTube",
-        value: "@harshbhosale",
-        href: "https://youtube.com",
+        value: youtube?.label ?? "@harshbhosale",
+        href: youtube?.url ?? "https://www.youtube.com",
     },
 ];
 

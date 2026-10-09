@@ -209,7 +209,9 @@ function CredentialsForm({
     pending: boolean
     onSubmit: (email: string, password: string) => void
 }) {
-    const [email, setEmail] = React.useState("")
+    // Pre-filled after accepting a team invite (/login?email=…)
+    const initialEmail = useSearchParams().get("email") ?? ""
+    const [email, setEmail] = React.useState(initialEmail)
     const [password, setPassword] = React.useState("")
 
     return (

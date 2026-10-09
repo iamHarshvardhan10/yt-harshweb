@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { getChannelLink } from "@/lib/youtube";
+
 const footerLinks = {
     explore: [
         { name: "About", href: "/about" },
@@ -9,7 +11,7 @@ const footerLinks = {
         { name: "Contact", href: "/contact" },
     ],
     social: [
-        { name: "YouTube", href: "#" },
+        { name: "YouTube", href: getChannelLink()?.url ?? "https://www.youtube.com" },
         { name: "Instagram", href: "#" },
         { name: "X", href: "#" },
     ],

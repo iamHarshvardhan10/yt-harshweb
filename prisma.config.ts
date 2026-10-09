@@ -1,5 +1,5 @@
 import "dotenv/config"
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +9,8 @@ export default defineConfig({
   },
 
   datasource: {
-    url: env("DIRECT_URL"),
+    // Optional so `prisma generate` works in builds (e.g. Vercel) without DIRECT_URL;
+    // migrate/db commands still need it set.
+    url: process.env.DIRECT_URL ?? "",
   },
 });

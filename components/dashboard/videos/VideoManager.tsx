@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 
 import {
     Search,
@@ -22,104 +23,51 @@ import {
     Smartphone,
 } from "lucide-react"
 
-
-type VideoType = "video" | "short"
-
-
-type YouTubeVideo = {
-    id: string
-    title: string
-    thumbnail: string
-    type: VideoType
-    views: string
-    publishedAt: string
-    duration: string
-    isVisible: boolean
-    showOnHome: boolean
-    featured: boolean
-    displayOrder: number
-    category: string
-}
+import type { YouTubeResult, YouTubeUpload, YouTubeUploads } from "@/lib/youtube"
+import { compact, duration, relativeTime } from "@/lib/format"
+import { DEFAULT_VIDEO_SETTINGS, VIDEO_CATEGORIES, type VideoWebsiteSettings } from "@/lib/videos/shared"
+import { api } from "@/components/dashboard/home/api"
+import YouTubeSetup from "@/components/dashboard/YouTubeSetup"
 
 
-const initialVideos: YouTubeVideo[] = [
-    {
-        id: "1",
-        title: "Why Mumbai Floods Every Monsoon",
-        thumbnail: "/thumbnails/mumbai-floods.webp",
-        type: "video",
-        views: "1.2M",
-        publishedAt: "2 days ago",
-        duration: "08:42",
-        isVisible: true,
-        showOnHome: true,
-        featured: true,
-        displayOrder: 1,
-        category: "Investigations",
-    },
-    {
-        id: "2",
-        title: "The Truth Behind India's E20 Fuel",
-        thumbnail: "/thumbnails/e20.webp",
-        type: "video",
-        views: "842K",
-        publishedAt: "5 days ago",
-        duration: "10:18",
-        isVisible: true,
-        showOnHome: true,
-        featured: false,
-        displayOrder: 2,
-        category: "Explainers",
-    },
-    {
-        id: "3",
-        title: "What Happened in Nepal?",
-        thumbnail: "/thumbnails/nepal.webp",
-        type: "short",
-        views: "421K",
-        publishedAt: "1 week ago",
-        duration: "00:48",
-        isVisible: true,
-        showOnHome: false,
-        featured: false,
-        displayOrder: 3,
-        category: "Shorts",
-    },
-    {
-        id: "4",
-        title: "Can One Glacier Cause a Flash Flood?",
-        thumbnail: "/thumbnails/glacier.webp",
-        type: "short",
-        views: "287K",
-        publishedAt: "1 week ago",
-        duration: "00:52",
-        isVisible: false,
-        showOnHome: false,
-        featured: false,
-        displayOrder: 4,
-        category: "Shorts",
-    },
-    {
-        id: "5",
-        title: "How Dependent Is Tripura on Bangladesh?",
-        thumbnail: "/thumbnails/tripura.webp",
-        type: "video",
-        views: "196K",
-        publishedAt: "2 weeks ago",
-        duration: "07:34",
-        isVisible: true,
-        showOnHome: false,
-        featured: false,
-        displayOrder: 5,
-        category: "Explainers",
-    },
-]
+type VideoType = YouTubeUpload["type"]
+
+type DashboardVideo = YouTubeUpload & VideoWebsiteSettings
+
+type SortKey = "newest" | "views"
+
+type SaveState = { type: "saving" | "saved" | "error"; text: string } | null
+
+const full = new Intl.NumberFormat("en")
 
 
-export default function Video() {
+const noUploads: Omit<YouTubeUploads, "channel"> = { uploads: [], truncated: false, channelUrl: "https://www.youtube.com" }
 
-    const [videos, setVideos] =
-        React.useState<YouTubeVideo[]>(initialVideos)
+
+export default function VideoManager({
+    result,
+    savedSettings,
+    onSync,
+}: {
+    result: YouTubeResult<YouTubeUploads>
+    savedSettings: Record<string, VideoWebsiteSettings>
+    onSync: () => Promise<void>
+}) {
+
+    const { uploads, truncated, channelUrl } =
+        result.status === "ok" ? result.data : noUploads
+
+    // Website settings are kept per video id so a sync refreshes the YouTube
+    // data without losing what was changed here
+    const [settings, setSettings] =
+        React.useState<Record<string, VideoWebsiteSettings>>(savedSettings)
+
+    const [saveState, setSaveState] =
+        React.useState<SaveState>(null)
+
+    // Display order is typed, then saved when the field loses focus
+    const [orderDraft, setOrderDraft] =
+        React.useState<string | null>(null)
 
     const [activeTab, setActiveTab] =
         React.useState<"all" | VideoType>("all")
@@ -127,16 +75,34 @@ export default function Video() {
     const [search, setSearch] =
         React.useState("")
 
-    const [selectedVideo, setSelectedVideo] =
-        React.useState<YouTubeVideo | null>(null)
+    const [sortBy, setSortBy] =
+        React.useState<SortKey>("newest")
 
-    const [syncing, setSyncing] =
-        React.useState(false)
+    const [selectedId, setSelectedId] =
+        React.useState<string | null>(null)
+
+    const [syncing, startSync] =
+        React.useTransition()
+
+    const [syncError, setSyncError] =
+        React.useState<string | null>(null)
+
+
+    const videos: DashboardVideo[] = uploads.map((video) => ({
+        ...video,
+        ...DEFAULT_VIDEO_SETTINGS,
+        ...settings[video.id],
+    }))
+
+    const selectedVideo =
+        videos.find((video) => video.id === selectedId) ?? null
 
 
     /* =========================================================
-       FILTER
+       FILTER + SORT
     ========================================================= */
+
+    const query = search.trim().toLowerCase()
 
     const filteredVideos = videos.filter((video) => {
 
@@ -147,10 +113,15 @@ export default function Video() {
         const matchesSearch =
             video.title
                 .toLowerCase()
-                .includes(search.toLowerCase())
+                .includes(query)
 
         return matchesType && matchesSearch
     })
+
+    // uploads arrive newest first
+    if (sortBy === "views") {
+        filteredVideos.sort((a, b) => b.views - a.views)
+    }
 
 
     /* =========================================================
@@ -174,24 +145,48 @@ export default function Video() {
        UPDATE VIDEO
     ========================================================= */
 
-    function updateVideo(
+    /** Applies the change right away and saves it; puts the old values back if saving fails */
+    async function updateVideo(
         id: string,
-        updates: Partial<YouTubeVideo>
+        updates: Partial<VideoWebsiteSettings>
     ) {
 
-        setVideos((current) =>
-            current.map((video) =>
-                video.id === id
-                    ? { ...video, ...updates }
-                    : video
-            )
-        )
+        const previous = settings[id] ?? DEFAULT_VIDEO_SETTINGS
 
-        setSelectedVideo((current) =>
-            current?.id === id
-                ? { ...current, ...updates }
-                : current
-        )
+        setSettings((current) => ({
+            ...current,
+            [id]: { ...(current[id] ?? DEFAULT_VIDEO_SETTINGS), ...updates },
+        }))
+        setSaveState({ type: "saving", text: "Saving…" })
+
+        try {
+            const { setting } = await api<{ setting: VideoWebsiteSettings }>(
+                `/api/videos/${encodeURIComponent(id)}`,
+                { method: "PATCH", json: updates }
+            )
+            setSettings((current) => ({ ...current, [id]: setting }))
+            setSaveState({ type: "saved", text: "Saved — live on the website" })
+        } catch (err) {
+            setSettings((current) => ({ ...current, [id]: previous }))
+            setSaveState({ type: "error", text: err instanceof Error ? err.message : "Couldn't save" })
+        }
+    }
+
+    function openVideo(id: string | null) {
+        setSelectedId(id)
+        setOrderDraft(null)
+        setSaveState(null)
+    }
+
+    function saveOrder(video: DashboardVideo) {
+        if (orderDraft === null) return
+        const value = orderDraft.trim() === "" ? null : Math.round(Number(orderDraft))
+        setOrderDraft(null)
+        if (value !== null && (!Number.isFinite(value) || value < 1)) {
+            setSaveState({ type: "error", text: "Display order must be 1 or more" })
+            return
+        }
+        if (value !== video.displayOrder) updateVideo(video.id, { displayOrder: value })
     }
 
 
@@ -201,11 +196,15 @@ export default function Video() {
 
     function syncYouTube() {
 
-        setSyncing(true)
+        setSyncError(null)
 
-        setTimeout(() => {
-            setSyncing(false)
-        }, 1200)
+        startSync(async () => {
+            try {
+                await onSync()
+            } catch {
+                setSyncError("Sync failed — try again")
+            }
+        })
     }
 
 
@@ -254,9 +253,19 @@ export default function Video() {
 
                     <div className="hidden items-center gap-2 text-xs text-zinc-500 sm:flex">
 
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                        {syncError ? (
+                            <span className="text-red-500">{syncError}</span>
+                        ) : (
+                            <>
+                                <span
+                                    className={`h-1.5 w-1.5 rounded-full ${result.status === "ok" ? "bg-green-500" : "bg-zinc-400"}`}
+                                />
 
-                        YouTube connected
+                                {result.status === "ok"
+                                    ? "YouTube connected"
+                                    : "YouTube not connected"}
+                            </>
+                        )}
 
                     </div>
 
@@ -264,7 +273,7 @@ export default function Video() {
                     <button
                         type="button"
                         onClick={syncYouTube}
-                        disabled={syncing}
+                        disabled={syncing || result.status === "unconfigured"}
                         className="
                             inline-flex
                             items-center
@@ -307,6 +316,16 @@ export default function Video() {
             <main className="min-h-[calc(100vh-64px)]">
 
                 <div className="mx-auto max-w-7xl px-6 py-8">
+
+                    {result.status !== "ok" ? (
+
+                        <YouTubeSetup
+                            error={result.status === "error" ? result.message : null}
+                            description="Your channel's videos and Shorts appear here once an API key is set."
+                            className="rounded-xl"
+                        />
+
+                    ) : (<>
 
 
                     {/* =================================================
@@ -435,6 +454,9 @@ export default function Video() {
 
                         <button
                             type="button"
+                            onClick={() =>
+                                setSortBy(sortBy === "newest" ? "views" : "newest")
+                            }
                             className="
                                 inline-flex
                                 items-center
@@ -449,7 +471,7 @@ export default function Video() {
 
                             <ArrowUpDown size={14} />
 
-                            Sort
+                            {sortBy === "newest" ? "Newest first" : "Most viewed"}
 
                         </button>
 
@@ -514,7 +536,7 @@ export default function Video() {
                                 key={video.id}
                                 video={video}
                                 onClick={() =>
-                                    setSelectedVideo(video)
+                                    openVideo(video.id)
                                 }
                                 onVisibilityChange={(visible) =>
                                     updateVideo(
@@ -543,7 +565,9 @@ export default function Video() {
                                 </p>
 
                                 <p className="mt-1 text-xs text-zinc-500">
-                                    Try another search or tab.
+                                    {videos.length
+                                        ? "Try another search or tab."
+                                        : "This channel has no public uploads yet."}
                                 </p>
 
                             </div>
@@ -561,9 +585,25 @@ export default function Video() {
 
                         <Clock3 size={13} />
 
-                        Last synced with YouTube recently
+                        {truncated
+                            ? `Showing your latest ${videos.length} uploads. `
+                            : ""}
+                        YouTube data refreshes every 10 minutes — use Sync YouTube to fetch it now.
+
+                        {truncated && (
+                            <a
+                                href={`${channelUrl}/videos`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-red-500 hover:text-red-400"
+                            >
+                                See all on YouTube
+                            </a>
+                        )}
 
                     </div>
+
+                    </>)}
 
                 </div>
 
@@ -583,7 +623,7 @@ export default function Video() {
                     <button
                         type="button"
                         aria-label="Close"
-                        onClick={() => setSelectedVideo(null)}
+                        onClick={() => openVideo(null)}
                         className="
                             absolute
                             inset-0
@@ -651,7 +691,7 @@ export default function Video() {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    setSelectedVideo(null)
+                                    openVideo(null)
                                 }
                                 className="
                                     rounded-lg
@@ -676,18 +716,33 @@ export default function Video() {
 
                             {/* THUMBNAIL */}
 
-                            <div className="overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900">
+                            <a
+                                href={selectedVideo.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="relative block aspect-video overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900"
+                            >
 
-                                <div className="flex aspect-video items-center justify-center">
-
+                                {selectedVideo.thumbnail ? (
+                                    <Image
+                                        src={selectedVideo.thumbnail}
+                                        alt=""
+                                        fill
+                                        sizes="448px"
+                                        className="object-cover"
+                                    />
+                                ) : (
                                     <Play
                                         size={30}
-                                        className="text-zinc-400"
+                                        className="absolute inset-0 m-auto text-zinc-400"
                                     />
+                                )}
 
-                                </div>
+                                <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-medium tabular-nums text-white">
+                                    {duration(selectedVideo.durationSeconds)}
+                                </span>
 
-                            </div>
+                            </a>
 
 
                             {/* TITLE */}
@@ -701,14 +756,33 @@ export default function Video() {
                                 <div className="mt-2 flex items-center gap-3 text-xs text-zinc-500">
 
                                     <span>
-                                        {selectedVideo.views} views
+                                        {full.format(selectedVideo.views)} views
                                     </span>
 
                                     <span>•</span>
 
                                     <span>
-                                        {selectedVideo.publishedAt}
+                                        {relativeTime(selectedVideo.publishedAt)}
                                     </span>
+
+                                </div>
+
+                                <div className="mt-4 grid grid-cols-3 divide-x divide-zinc-200 rounded-lg border border-zinc-200 text-center dark:divide-zinc-800 dark:border-zinc-800">
+
+                                    <PanelStat
+                                        label="Views"
+                                        value={compact(selectedVideo.views)}
+                                    />
+
+                                    <PanelStat
+                                        label="Likes"
+                                        value={selectedVideo.likes === null ? "Hidden" : compact(selectedVideo.likes)}
+                                    />
+
+                                    <PanelStat
+                                        label="Comments"
+                                        value={selectedVideo.comments === null ? "Off" : compact(selectedVideo.comments)}
+                                    />
 
                                 </div>
 
@@ -742,9 +816,22 @@ export default function Video() {
 
                             <div className="mt-7">
 
-                                <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                                    Website
-                                </p>
+                                <div className="flex items-center justify-between">
+
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                                        Website
+                                    </p>
+
+                                    {saveState && (
+                                        <span
+                                            role="status"
+                                            className={`text-[11px] font-medium ${saveState.type === "error" ? "text-red-500" : saveState.type === "saved" ? "text-green-600" : "text-zinc-500"}`}
+                                        >
+                                            {saveState.text}
+                                        </span>
+                                    )}
+
+                                </div>
 
 
                                 <div className="mt-3 space-y-2">
@@ -759,7 +846,7 @@ export default function Video() {
                                                 : <EyeOff size={16} />
                                         }
                                         title="Show on Website"
-                                        description="Display this content on your website"
+                                        description="List it on the website’s Videos page"
                                     >
 
                                         <Toggle
@@ -784,7 +871,7 @@ export default function Video() {
                                     <SettingRow
                                         icon={<Home size={16} />}
                                         title="Show on Homepage"
-                                        description="Display this content in the homepage video section"
+                                        description="Pick the videos for the homepage section — if none are picked, the latest 6 show"
                                     >
 
                                         <Toggle
@@ -809,7 +896,7 @@ export default function Video() {
                                     <SettingRow
                                         icon={<Star size={16} />}
                                         title="Featured Video"
-                                        description="Highlight this content on your website"
+                                        description="Listed first on the website, with a Featured label"
                                     >
 
                                         <Toggle
@@ -844,16 +931,13 @@ export default function Video() {
                                 <input
                                     type="number"
                                     min={1}
-                                    value={selectedVideo.displayOrder}
-                                    onChange={(e) =>
-                                        updateVideo(
-                                            selectedVideo.id,
-                                            {
-                                                displayOrder:
-                                                    Number(e.target.value),
-                                            }
-                                        )
-                                    }
+                                    placeholder="Automatic (newest first)"
+                                    value={orderDraft ?? selectedVideo.displayOrder ?? ""}
+                                    onChange={(e) => setOrderDraft(e.target.value)}
+                                    onBlur={() => saveOrder(selectedVideo)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") e.currentTarget.blur()
+                                    }}
                                     className="
                                         mt-2
                                         w-full
@@ -885,13 +969,13 @@ export default function Video() {
                                 </label>
 
                                 <select
-                                    value={selectedVideo.category}
+                                    value={selectedVideo.category ?? ""}
                                     onChange={(e) =>
                                         updateVideo(
                                             selectedVideo.id,
                                             {
                                                 category:
-                                                    e.target.value,
+                                                    e.target.value || null,
                                             }
                                         )
                                     }
@@ -914,25 +998,20 @@ export default function Video() {
                                     "
                                 >
 
-                                    <option>
-                                        Investigations
+                                    <option value="">
+                                        Uncategorised
                                     </option>
 
-                                    <option>
-                                        Explainers
-                                    </option>
+                                    {/* keep a saved category that's no longer in the list */}
+                                    {selectedVideo.category && !(VIDEO_CATEGORIES as readonly string[]).includes(selectedVideo.category) && (
+                                        <option>{selectedVideo.category}</option>
+                                    )}
 
-                                    <option>
-                                        Shorts
-                                    </option>
-
-                                    <option>
-                                        Climate
-                                    </option>
-
-                                    <option>
-                                        Technology
-                                    </option>
+                                    {VIDEO_CATEGORIES.map((category) => (
+                                        <option key={category}>
+                                            {category}
+                                        </option>
+                                    ))}
 
                                 </select>
 
@@ -943,8 +1022,10 @@ export default function Video() {
 
                             <div className="mt-7 border-t border-zinc-200 pt-6 dark:border-zinc-800">
 
-                                <button
-                                    type="button"
+                                <a
+                                    href={selectedVideo.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="
                                         flex
                                         w-full
@@ -968,7 +1049,7 @@ export default function Video() {
 
                                     Open on YouTube
 
-                                </button>
+                                </a>
 
                             </div>
 
@@ -978,7 +1059,7 @@ export default function Video() {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    setSelectedVideo(null)
+                                    openVideo(null)
                                 }
                                 className="
                                     mt-3
@@ -1000,7 +1081,7 @@ export default function Video() {
 
                                 <Check size={15} />
 
-                                Save Changes
+                                Done
 
                             </button>
 
@@ -1121,7 +1202,7 @@ function VideoRow({
     onClick,
     onVisibilityChange,
 }: {
-    video: YouTubeVideo
+    video: DashboardVideo
     onClick: () => void
     onVisibilityChange: (value: boolean) => void
 }) {
@@ -1185,15 +1266,25 @@ function VideoRow({
                     "
                 >
 
-                    <div className="flex h-full items-center justify-center">
-
-                        <Play
-                            size={18}
-                            className="text-white/70"
-                            fill="currentColor"
+                    {video.thumbnail ? (
+                        <Image
+                            src={video.thumbnail}
+                            alt=""
+                            fill
+                            sizes="112px"
+                            className="object-cover"
                         />
+                    ) : (
+                        <div className="flex h-full items-center justify-center">
 
-                    </div>
+                            <Play
+                                size={18}
+                                className="text-white/70"
+                                fill="currentColor"
+                            />
+
+                        </div>
+                    )}
 
 
                     <span
@@ -1207,10 +1298,11 @@ function VideoRow({
                             py-0.5
                             text-[9px]
                             font-medium
+                            tabular-nums
                             text-white
                         "
                     >
-                        {video.duration}
+                        {duration(video.durationSeconds)}
                     </span>
 
                 </div>
@@ -1225,13 +1317,13 @@ function VideoRow({
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">
 
                         <span>
-                            {video.views} views
+                            {compact(video.views)} views
                         </span>
 
                         <span>•</span>
 
                         <span>
-                            {video.publishedAt}
+                            {relativeTime(video.publishedAt)}
                         </span>
 
                     </div>
@@ -1294,7 +1386,9 @@ function VideoRow({
 
                 <BarChart3 size={13} />
 
-                {video.views}
+                <span className="tabular-nums">
+                    {full.format(video.views)}
+                </span>
 
             </div>
 
@@ -1375,6 +1469,35 @@ function VideoRow({
                 <MoreHorizontal size={16} />
 
             </button>
+
+        </div>
+    )
+}
+
+
+/* =============================================================
+   PANEL STAT
+============================================================= */
+
+function PanelStat({
+    label,
+    value,
+}: {
+    label: string
+    value: string
+}) {
+
+    return (
+
+        <div className="px-3 py-2.5">
+
+            <p className="text-sm font-semibold tabular-nums">
+                {value}
+            </p>
+
+            <p className="mt-0.5 text-[10px] text-zinc-500">
+                {label}
+            </p>
 
         </div>
     )

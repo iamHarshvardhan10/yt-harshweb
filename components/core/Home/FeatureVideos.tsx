@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { featuredVideos } from "@/app/utils/constant";
 import AnimatedDotText from "@/components/common/AnimateDot";
 import type { HomeSectionData } from "@/lib/home/queries";
+import { duration } from "@/lib/format";
+import { videoDate, type PublicVideo } from "@/lib/videos/shared";
 
-// Header copy comes from the DB; the video grid will come from the YouTube API.
-export default function FeaturedVideos({ section }: { section: HomeSectionData }) {
+// Header copy comes from the DB; the videos from the YouTube API, picked in /dashboard/videos.
+export default function FeaturedVideos({ section, videos }: { section: HomeSectionData; videos: PublicVideo[] }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
             <div className="flex flex-col items-center justify-center mt-30">
@@ -20,9 +21,9 @@ export default function FeaturedVideos({ section }: { section: HomeSectionData }
             <div className="px-49 py-15">
                 <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
 
-                    {featuredVideos.map((video) => (
+                    {videos.map((video, index) => (
                         <Link
-                            href={video.youtubeUrl}
+                            href={video.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             key={video.id}
@@ -30,34 +31,38 @@ export default function FeaturedVideos({ section }: { section: HomeSectionData }
                         >
                             <div className="mb-3 flex items-center justify-between mt-10">
                                 <p className="text-[12px] uppercase tracking-[0.15em]">
-                                    {video.id}
+                                    {video.category ?? String(index + 1).padStart(2, "0")}
                                 </p>
 
                                 <div className="flex items-center gap-3">
                                     <span className="text-[12px] text-[#82CFFF]">
-                                        {video.duration}
+                                        {duration(video.durationSeconds)}
                                     </span>
 
                                     <span className="text-[12px]">
-                                        {video.publishedAt}
+                                        {videoDate(video.publishedAt)}
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="relative aspect-video w-full overflow-hidden bg-neutral-100">
-                                <Image
-                                    src={video.thumbnail}
-                                    alt={video.title}
-                                    fill
-                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                                />
+                            <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
+                                {video.thumbnailHd && (
+                                    <Image
+                                        src={video.thumbnailHd}
+                                        alt={video.title}
+                                        fill
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                                    />
+                                )}
 
-                                {/* <div className="absolute bottom-3 left-3">
-                                    <span className="bg-black/80 px-2.5 py-1 text-[9px] uppercase tracking-[0.15em] text-white backdrop-blur-sm">
-                                        {video.category}
-                                    </span>
-                                </div> */}
+                                {video.featured && (
+                                    <div className="absolute bottom-3 left-3">
+                                        <span className="bg-black/80 px-2.5 py-1 text-[9px] uppercase tracking-[0.15em] text-white backdrop-blur-sm">
+                                            Featured
+                                        </span>
+                                    </div>
+                                )}
 
                                 <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
                             </div>
@@ -67,58 +72,24 @@ export default function FeaturedVideos({ section }: { section: HomeSectionData }
                                     {video.title}
                                 </h3>
 
-                                <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-neutral-500">
-                                    {video.description}
-                                </p>
+                                {video.description && (
+                                    <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-neutral-500">
+                                        {video.description}
+                                    </p>
+                                )}
                             </div>
                         </Link>
                     ))}
 
+                </div>
+
+                <div className="mt-16 flex justify-center">
+                    <Link href="/videos" className="glow-button px-10 py-2 border border-white rounded-full uppercase text-[14px]">
+                        View all videos
+                    </Link>
                 </div>
             </div>
 
         </div>
     )
 }
-
-
-
-
-
-
-
-
-
-
-// import Image from "next/image";
-// import Link from "next/link";
-// import { featuredVideos } from "@/data/featuredVideos";
-
-// export default function FeaturedVideos() {
-//     return (
-//         <section className="px-6 py-12 sm:px-10 lg:px-20 lg:py-16">
-//             <div className="mx-auto max-w-7xl">
-
-//                 {/* Section Header */}
-//                 <div className="mb-8 flex items-end justify-between">
-//                     <div>
-//                         <p className="mb-2 text-xs uppercase tracking-[0.2em] text-neutral-500">
-//                             Featured
-//                         </p>
-
-//                         <h2 className="text-2xl font-medium tracking-tight sm:text-3xl">
-//                             Investigations & Explainers
-//                         </h2>
-//                     </div>
-
-//                     <p className="hidden text-xs text-neutral-500 sm:block">
-//                         {featuredVideos.length} videos
-//                     </p>
-//                 </div>
-
-//                 {/* Video Grid */}
-               
-//             </div>
-//         </section>
-//     );
-// }

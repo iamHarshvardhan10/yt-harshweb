@@ -73,6 +73,12 @@ export async function destroySession(stage: SessionStage) {
     jar.delete(config[stage].cookie);
 }
 
+/** DB id of the browser's signed-in session, or null. */
+export async function currentSessionId() {
+    const token = (await cookies()).get(SESSION_COOKIE)?.value;
+    return token ? hashToken(token) : null;
+}
+
 export async function deleteExpiredSessions() {
     await prisma.session.deleteMany({ where: { expiresAt: { lt: new Date() } } });
 }

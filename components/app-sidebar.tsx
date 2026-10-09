@@ -169,27 +169,6 @@ const data = {
     },
 
 
-    // =========================
-    // CHANNEL
-    // =========================
-
-    {
-      title: "Channel",
-      url: "#",
-      icon: <LayoutDashboard />,
-
-      items: [
-        {
-          title: "YouTube Channel",
-          url: "/dashboard/channel",
-        },
-        {
-          title: "Audience",
-          url: "/dashboard/audience",
-        },
-      ],
-    },
-
     {
       title: "Newsletter",
       url: "/dashboard/newsletter",

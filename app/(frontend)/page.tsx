@@ -6,17 +6,24 @@ import Hero from "@/components/core/Home/Hero";
 import Listerners from "@/components/core/Home/Listeners";
 import Metrics from "@/components/core/Home/Metrics";
 import { getHomePageData } from "@/lib/home/queries";
+import { getPublicVideos } from "@/lib/videos/queries";
 
-// Content is managed from /dashboard/home — API mutations call revalidatePath("/")
+// Content is managed from /dashboard/home and /dashboard/videos — API mutations
+// call revalidatePath("/"); YouTube data refreshes every 10 minutes
 
 export default async function Home() {
-  const { hero, sections, metrics, aboutItems, testimonials, faqs } = await getHomePageData();
+  const [{ hero, sections, metrics, aboutItems, testimonials, faqs }, { home: homeVideos }] = await Promise.all([
+    getHomePageData(),
+    getPublicVideos(),
+  ]);
 
   return (
     <>
       {hero.isVisible && <Hero hero={hero} />}
 
-      {sections.FEATURED_VIDEOS.isVisible && <FeaturedVideos section={sections.FEATURED_VIDEOS} />}
+      {sections.FEATURED_VIDEOS.isVisible && homeVideos.length > 0 && (
+        <FeaturedVideos section={sections.FEATURED_VIDEOS} videos={homeVideos} />
+      )}
 
       {sections.METRICS.isVisible && metrics.length > 0 && (
         <Metrics section={sections.METRICS} metrics={metrics} />

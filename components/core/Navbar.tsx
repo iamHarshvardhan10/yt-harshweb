@@ -1,15 +1,19 @@
+import Image from "next/image";
 import Link from "next/link";
 
-export default function Navbar() {
+export default function Navbar({ title, logoUrl }: { title: string; logoUrl: string | null }) {
     return (
         <nav className="w-full fixed z-1000 text-white">
             <div className="mx-auto flex h-16  items-center justify-between px-19">
 
                 <Link
                     href="/"
-                    className="text-[16px] font-medium tracking-[-0.01em]  uppercase"
+                    className="flex items-center gap-3 text-[16px] font-medium tracking-[-0.01em]  uppercase"
                 >
-                    Harsh Bhosale - YouTube
+                    {logoUrl && (
+                        <Image src={logoUrl} alt="" width={32} height={32} className="h-8 w-auto object-contain" />
+                    )}
+                    {title}
                 </Link>
 
                 <ul className="flex items-center gap-8">

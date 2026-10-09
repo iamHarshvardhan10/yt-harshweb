@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import AnimatedDotText from "@/components/common/AnimateDot";
 import PageHero from "@/components/common/PageHero";
 import SubscribeForm from "@/components/core/Newsletter/SubscribeForm";
+import { getActiveSubscriberCount, getPublishedIssues, issueNumbers } from "@/lib/newsletter/queries";
+import { excerpt } from "@/lib/newsletter/shared";
+import { compact } from "@/lib/format";
 
 export const metadata: Metadata = {
     title: "Newsletter - Harsh Bhosale",
@@ -27,34 +31,27 @@ const benefits = [
     },
 ];
 
-const recentIssues = [
-    {
-        id: "24",
-        date: "2026-09-08",
-        subject: "New investigation: The Truth Behind India's E20 Fuel",
-        preview: "What the government roadmap doesn't tell you about your vehicle.",
-    },
-    {
-        id: "23",
-        date: "2026-09-03",
-        subject: "Why Mumbai floods every monsoon, and who's responsible",
-        preview: "A 1993 masterplan, a 25 mm/hr design limit, and 30 years of delays.",
-    },
-    {
-        id: "22",
-        date: "2026-08-27",
-        subject: "Behind the scenes: how we research a story",
-        preview: "Sources, verification and the documents we read so you don't have to.",
-    },
-];
+const issueDate = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
 
-const stats = [
-    { value: "4.3K+", label: "Readers" },
-    { value: "51%", label: "Open Rate" },
-    { value: "Weekly", label: "Every Friday" },
-];
+// Below this the reader count reads as a weakness rather than social proof
+const SHOW_READERS_FROM = 50;
 
-export default function NewsletterPage() {
+// Content comes from /dashboard/newsletter
+
+export default async function NewsletterPage() {
+    const [readers, recentIssues, numbers] = await Promise.all([
+        getActiveSubscriberCount(),
+        getPublishedIssues(5),
+        issueNumbers(),
+    ]);
+
+    const stats = [
+        readers >= SHOW_READERS_FROM ? { value: `${compact(readers)}+`, label: "Readers" } : null,
+        numbers.size > 0 ? { value: String(numbers.size), label: "Issues sent" } : null,
+        { value: "Weekly", label: "Every Friday" },
+        { value: "Free", label: "Unsubscribe anytime" },
+    ].filter((stat) => stat !== null).slice(0, 3);
+
     return (
         <>
             <PageHero
@@ -108,28 +105,33 @@ export default function NewsletterPage() {
             </section>
 
             {/* RECENT ISSUES */}
-            <section className="bg-background px-6 pb-30 pt-20 text-white md:px-20 lg:px-49">
-                <div className="flex flex-col items-center text-center">
-                    <AnimatedDotText text="Recent Issues" className="mb-2" />
-                    <h2 className="text-4xl uppercase">See what you&apos;ve been missing</h2>
-                </div>
+            {recentIssues.length > 0 && (
+                <section className="bg-background px-6 pb-30 pt-20 text-white md:px-20 lg:px-49">
+                    <div className="flex flex-col items-center text-center">
+                        <AnimatedDotText text="Recent Issues" className="mb-2" />
+                        <h2 className="text-4xl uppercase">See what you&apos;ve been missing</h2>
+                    </div>
 
-                <div className="mt-12 border-t border-white/10">
-                    {recentIssues.map((issue) => (
-                        <div
-                            key={issue.id}
-                            className="grid grid-cols-1 gap-4 border-b border-white/10 py-8 md:grid-cols-[100px_1fr_140px] md:items-center"
-                        >
-                            <span className="text-[44px] leading-none tracking-[-2.2px] text-white/30">#{issue.id}</span>
-                            <div>
-                                <h3 className="text-[20px] uppercase md:text-2xl">{issue.subject}</h3>
-                                <p className="mt-2 text-[14px] text-[#c9c9c9]">{issue.preview}</p>
-                            </div>
-                            <span className="text-[12px] uppercase tracking-[0.15em] text-[#82CFFF] md:text-right">{issue.date}</span>
-                        </div>
-                    ))}
-                </div>
-            </section>
+                    <div className="mt-12 border-t border-white/10">
+                        {recentIssues.map((issue) => (
+                            <Link
+                                key={issue.id}
+                                href={`/newsletter/issues/${issue.id}`}
+                                className="group grid grid-cols-1 gap-4 border-b border-white/10 py-8 md:grid-cols-[100px_1fr_140px] md:items-center"
+                            >
+                                <span className="text-[44px] leading-none tracking-[-2.2px] text-white/30">#{numbers.get(issue.id)}</span>
+                                <div>
+                                    <h3 className="text-[20px] uppercase transition-colors group-hover:text-neutral-500 md:text-2xl">{issue.subject}</h3>
+                                    <p className="mt-2 text-[14px] text-[#c9c9c9]">{issue.preview || excerpt(issue.body)}</p>
+                                </div>
+                                <span className="text-[12px] uppercase tracking-[0.15em] text-[#82CFFF] md:text-right">
+                                    {issue.sentAt && issueDate.format(issue.sentAt)}
+                                </span>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
         </>
     );
 }

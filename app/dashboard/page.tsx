@@ -21,7 +21,8 @@ import {
 import { getAdminUser } from "@/lib/auth/dal";
 import { getYouTubeOverview, type YouTubeOverview } from "@/lib/youtube";
 import UploadViewsChart from "@/components/dashboard/overview/UploadViewsChart";
-import { compact } from "@/lib/format";
+import { compact, duration, relativeTime, shortDate } from "@/lib/format";
+import YouTubeSetup from "@/components/dashboard/YouTubeSetup";
 
 // Pipeline and schedule have no backend yet — shown as a preview of the layout
 const pipeline = [
@@ -38,25 +39,6 @@ const upcoming = [
 ];
 
 const full = new Intl.NumberFormat("en");
-const shortDate = new Intl.DateTimeFormat("en", { month: "short", day: "2-digit", year: "numeric" });
-
-function relativeTime(iso: string) {
-  const minutes = Math.round((Date.now() - Date.parse(iso)) / 60000);
-  if (minutes < 60) return `${Math.max(minutes, 1)} min ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} hr ago`;
-  const days = Math.round(hours / 24);
-  if (days < 30) return `${days} day${days === 1 ? "" : "s"} ago`;
-  return shortDate.format(new Date(iso));
-}
-
-function duration(seconds: number) {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  const mm = h ? String(m).padStart(2, "0") : String(m);
-  return `${h ? `${h}:` : ""}${mm}:${String(s).padStart(2, "0")}`;
-}
 
 const sum = (values: (number | null)[]) => values.reduce<number>((total, v) => total + (v ?? 0), 0);
 
@@ -405,29 +387,6 @@ function ChannelOverview({ data }: { data: YouTubeOverview }) {
     </>
   );
 }
-
-function YouTubeSetup({ error }: { error: string | null }) {
-  return (
-    <section className="border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-      <h2 className="font-semibold">{error ? "Couldn't load YouTube data" : "Connect your YouTube channel"}</h2>
-
-      {error ? (
-        <p className="mt-2 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-600">{error}</p>
-      ) : (
-        <p className="mt-1 text-xs text-zinc-500">Channel stats, recent videos and comments appear here once an API key is set.</p>
-      )}
-
-      {!error && (
-        <ol className="mt-4 list-decimal space-y-1.5 pl-5 text-xs leading-5 text-zinc-600 dark:text-zinc-400">
-          <li>In Google Cloud Console, enable <strong>YouTube Data API v3</strong> and create an API key with Application restrictions set to <strong>None</strong>.</li>
-          <li>In <code>.env</code>, set <code>YOUTUBE_API_KEY=&quot;your-key&quot;</code> and <code>YOUTUBE_CHANNEL=&quot;@HarshBhosale&quot;</code>.</li>
-          <li>Restart <code>npm run dev</code> so the new values are loaded.</li>
-        </ol>
-      )}
-    </section>
-  );
-}
-
 
 /* =============================================================
    SMALL PIECES
