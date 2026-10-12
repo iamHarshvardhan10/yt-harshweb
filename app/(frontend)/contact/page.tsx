@@ -59,7 +59,7 @@ export default async function ContactPage() {
                         >
                             <span className="text-[16px] text-[#82CFFF]">{channel.id}</span>
                             <p className="mt-6 text-[12px] uppercase tracking-[0.15em] text-white/40">{channel.title}</p>
-                            <p className="mt-2 text-[20px] transition-colors group-hover:text-[#82CFFF]">{channel.value}</p>
+                            <p className="mt-2 break-all text-[18px] transition-colors md:text-[20px] group-hover:text-[#82CFFF]">{channel.value}</p>
                         </a>
                     ))}
                 </div>

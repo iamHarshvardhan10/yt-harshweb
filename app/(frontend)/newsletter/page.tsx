@@ -65,17 +65,17 @@ export default async function NewsletterPage() {
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.4fr] lg:items-start">
                     <div>
                         <AnimatedDotText text="Subscribe" className="mb-4" />
-                        <h2 className="text-[44px] uppercase leading-[48.4px] tracking-[-2.2px]">
+                        <h2 className="text-[32px] uppercase leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px]">
                             Join the readers who look closer.
                         </h2>
                         <p className="mt-4 text-[16px] uppercase leading-[22.4px] text-[#c9c9c9]">
                             No noise, no daily spam. Just one well-researched email every Friday.
                         </p>
 
-                        <div className="mt-10 grid grid-cols-3 border-t border-white/10 pt-8">
+                        <div className="mt-10 grid grid-cols-3 gap-4 border-t border-white/10 pt-8">
                             {stats.map((stat) => (
                                 <div key={stat.label}>
-                                    <p className="text-[32px] leading-none">{stat.value}</p>
+                                    <p className="text-[22px] leading-none sm:text-[32px]">{stat.value}</p>
                                     <p className="mt-2 text-[12px] uppercase tracking-[0.15em] text-[#82CFFF]">{stat.label}</p>
                                 </div>
                             ))}
@@ -89,7 +89,7 @@ export default async function NewsletterPage() {
             {/* WHAT YOU GET */}
             <section className="bg-background px-6 py-20 text-white md:px-26.5">
                 <AnimatedDotText text="What You Get" className="mb-4" />
-                <h3 className="text-[44px] uppercase leading-[48.4px] tracking-[-2.2px] md:w-[60%]">
+                <h3 className="text-[32px] uppercase leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] md:w-[60%]">
                     Every issue, three things.
                 </h3>
 
@@ -97,7 +97,7 @@ export default async function NewsletterPage() {
                     {benefits.map((item) => (
                         <div key={item.id} className="border-b border-white/10 py-10 md:border-b-0 md:border-r md:px-8 md:first:pl-0 md:last:border-r-0">
                             <span className="text-[16px] uppercase text-[#82CFFF]">{item.id}</span>
-                            <h4 className="mt-6 text-[32px] uppercase tracking-[-1px]">{item.title}</h4>
+                            <h4 className="mt-6 text-[26px] uppercase tracking-[-1px] md:text-[32px]">{item.title}</h4>
                             <p className="mt-4 text-[16px] uppercase leading-[22.4px] text-[#c9c9c9]">{item.description}</p>
                         </div>
                     ))}

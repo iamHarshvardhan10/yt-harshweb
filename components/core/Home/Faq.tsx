@@ -15,15 +15,15 @@ export default function Faqs({
 }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
-            <div className="flex flex-col items-center justify-center mt-30">
+            <div className="flex flex-col items-center justify-center mt-20 px-6 md:mt-30">
                 {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
-                <h2 className="uppercase text-4xl w-[50%] text-center whitespace-pre-line">{section.title}</h2>
+                <h2 className="uppercase text-3xl md:text-4xl w-full md:w-[70%] lg:w-[50%] text-center whitespace-pre-line">{section.title}</h2>
                 {section.description && (
-                    <p className="text-[16px] text-[#c9c9c9] w-[40%] text-center mt-3">{section.description}</p>
+                    <p className="text-[16px] text-[#c9c9c9] w-full md:w-[70%] lg:w-[40%] text-center mt-3">{section.description}</p>
                 )}
             </div>
 
-            <div className="px-39 py-6">
+            <div className="py-6 md:px-10 lg:px-39">
                 <FAQAccordion faqs={faqs} />
             </div>
 

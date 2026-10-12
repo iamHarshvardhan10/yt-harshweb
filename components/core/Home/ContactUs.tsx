@@ -13,15 +13,15 @@ import type { HomeSectionData } from "@/lib/home/queries";
 export default function ContactUs({ section }: { section: HomeSectionData }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
-            <div className="flex flex-col items-center justify-center mt-30">
+            <div className="flex flex-col items-center justify-center mt-20 px-6 md:mt-30">
                 {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
-                <h2 className="uppercase text-4xl w-full text-center">{section.title}</h2>
+                <h2 className="uppercase text-3xl md:text-4xl w-full text-center">{section.title}</h2>
                 {section.description && (
-                    <p className="text-[16px] text-[#c9c9c9] w-[30%] text-center mt-3">{section.description}</p>
+                    <p className="text-[16px] text-[#c9c9c9] w-full md:w-[60%] lg:w-[30%] text-center mt-3">{section.description}</p>
                 )}
             </div>
 
-            <div className="w-[50%] flex flex-col items-center justify-center mx-auto py-10">
+            <div className="w-full px-6 md:w-[70%] md:px-0 lg:w-[50%] flex flex-col items-center justify-center mx-auto py-10">
                 <Field className="mb-4">
                     <FieldLabel htmlFor="input-field-username" className="text-[16px] uppercase mb-2">Your Name</FieldLabel>
                     <Input
@@ -32,10 +32,10 @@ export default function ContactUs({ section }: { section: HomeSectionData }) {
                     />
                 </Field>
                 <Field className="mt-4 mb-4">
-                    <FieldLabel htmlFor="input-field-username" className="text-[16px] uppercase mb-2">Your Email</FieldLabel>
+                    <FieldLabel htmlFor="input-field-email" className="text-[16px] uppercase mb-2">Your Email</FieldLabel>
                     <Input
-                        id="input-field-username"
-                        type="text"
+                        id="input-field-email"
+                        type="email"
                         placeholder="Enter your email"
                         className="rounded-none h-10 border-[#919191]"
                     />

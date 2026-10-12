@@ -14,13 +14,13 @@ export default function Listerners({
     testimonials: Testimonial[];
 }) {
     return (
-        <div className="px-26.5 bg-background text-white">
-            <div className="flex items-center justify-between w-full">
-                <div className="flex flex-col w-[50%]">
+        <div className="px-6 md:px-26.5 bg-background text-white">
+            <div className="flex flex-col gap-6 w-full md:flex-row md:items-center md:justify-between">
+                <div className="flex flex-col md:w-[50%]">
                     {section.eyebrow && <AnimatedDotText text={section.eyebrow} />}
-                    <h3 className="text-[44px] leading-[48.4px] tracking-[-2.2px] uppercase w-[60%]">{section.title}</h3>
+                    <h3 className="text-[32px] leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] uppercase lg:w-[60%]">{section.title}</h3>
                 </div>
-                <div className="w-[25%] flex items-center mt-10">
+                <div className="md:w-[35%] lg:w-[25%] flex items-center md:mt-10">
                     {section.description && (
                         <p className="text-[16px] leading-[22.4px] tracking-[-0.16px] uppercase text-[#c9c9c9]">
                             {section.description}
@@ -59,7 +59,7 @@ function TestimonialCard({
     const imageSrc = testimonial.avatar?.secureUrl ?? testimonial.image;
 
     return (
-        <div className="group flex  h-45 w-[590px] shrink-0 flex-col justify-between border border-white/30 bg-black p-6 transition-colors duration-300 hover:border-white/60">
+        <div className="group flex min-h-45 w-[85vw] max-w-[590px] shrink-0 flex-col justify-between gap-4 border border-white/30 bg-black p-4 transition-colors duration-300 hover:border-white/60 sm:w-[590px] sm:p-6">
 
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -98,7 +98,7 @@ function TestimonialCard({
             </div>
 
 
-            <p className="max-w-130 font-mono text-[16px] font-semibold uppercase leading-normal text-white">
+            <p className="max-w-130 font-mono text-[14px] sm:text-[16px] font-semibold uppercase leading-normal text-white">
                 &ldquo;{testimonial.text}&rdquo;
             </p>
         </div>
@@ -109,8 +109,8 @@ export function TestimonialsMarquee({ testimonials }: { testimonials: Testimonia
     return (
         <section className="relative w-full overflow-hidden bg-black py-10">
 
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-32 bg-linear-to-r from-black to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-32 bg-linear-to-l from-black to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 md:w-32 bg-linear-to-r from-black to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 md:w-32 bg-linear-to-l from-black to-transparent" />
 
 
             <div className="marquee-wrapper mb-5">

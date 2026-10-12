@@ -44,7 +44,7 @@ export default function Footer() {
                             Explore
                         </p>
 
-                        <div className="flex  gap-2">
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
                             {footerLinks.explore.map((link) => (
                                 <Link
                                     key={link.name}
@@ -63,7 +63,7 @@ export default function Footer() {
                             Social
                         </p>
 
-                        <div className="flex  gap-2">
+                        <div className="flex flex-wrap gap-x-4 gap-y-2">
                             {footerLinks.social.map((link) => (
                                 <a
                                     key={link.name}
