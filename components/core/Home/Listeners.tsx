@@ -18,7 +18,7 @@ export default function Listerners({
             <div className="flex flex-col gap-6 w-full md:flex-row md:items-center md:justify-between">
                 <div className="flex flex-col md:w-[50%]">
                     {section.eyebrow && <AnimatedDotText text={section.eyebrow} />}
-                    <h3 className="text-[32px] leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] uppercase lg:w-[60%]">{section.title}</h3>
+                    <h2 className="text-[32px] leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] uppercase lg:w-[60%]">{section.title}</h2>
                 </div>
                 <div className="md:w-[35%] lg:w-[25%] flex items-center md:mt-10">
                     {section.description && (

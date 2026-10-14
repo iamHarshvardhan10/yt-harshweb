@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { unsubscribeByToken } from "@/lib/newsletter/queries";
 
 export const metadata: Metadata = {
-    title: "Unsubscribe - Harsh Bhosale",
+    title: "Unsubscribe",
     robots: { index: false },
 };
 

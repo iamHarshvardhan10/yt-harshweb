@@ -4,4 +4,5 @@ import { revalidatePath } from "next/cache";
 export function revalidateNewsletter() {
     revalidatePath("/newsletter");
     revalidatePath("/newsletter/issues/[id]", "page");
+    revalidatePath("/sitemap.xml");
 }

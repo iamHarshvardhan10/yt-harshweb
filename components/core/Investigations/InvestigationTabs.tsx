@@ -1,35 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { DocumentLanguage } from "@prisma/client";
 
 import type { PublicDocument, PublicInvestigation } from "@/lib/investigations/queries";
 import { languageLabels } from "@/lib/investigations/shared";
 import { duration } from "@/lib/format";
 import { displayDate } from "@/components/core/Investigations/format";
+import YouTubeEmbed from "@/components/common/YouTubeEmbed";
 
 type Tab = "watch" | "read";
 
-export default function InvestigationTabs({
-    investigation,
-    initialTab,
-    initialLanguage,
-}: {
-    investigation: PublicInvestigation,
-    initialTab: Tab,
-    initialLanguage: DocumentLanguage,
-}) {
+export default function InvestigationTabs({ investigation }: { investigation: PublicInvestigation }) {
     const { video, documents } = investigation;
 
-    const [activeTab, setActiveTab] = useState<Tab>(initialTab);
-    const [language, setLanguage] = useState<DocumentLanguage>(
-        documents.some((doc) => doc.language === initialLanguage) ? initialLanguage : documents[0]?.language ?? "EN"
-    );
+    // Open on the report when there's no video to watch
+    const [activeTab, setActiveTab] = useState<Tab>(video ? "watch" : "read");
+    const [language, setLanguage] = useState<DocumentLanguage>(documents[0]?.language ?? "EN");
+
+    // ?tab=read and ?lang=hi (from the library and newsletter links) are read in
+    // the browser, so the page itself stays static and cacheable
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const lang = params.get("lang") === "hi" ? "HI" : null;
+
+        /* eslint-disable react-hooks/set-state-in-effect -- one-time sync from the URL after hydration */
+        if (params.get("tab") === "read" && documents.length > 0) setActiveTab("read");
+        if (lang && documents.some((doc) => doc.language === lang)) setLanguage(lang);
+        /* eslint-enable react-hooks/set-state-in-effect */
+    }, [documents]);
 
     const tabs = ([["watch", "Watch Video"], ["read", "Read Report"]] as const).filter(
         ([id]) => (id === "watch" ? video : documents.length > 0)
     );
-    const activeDocument = documents.find((doc) => doc.language === language);
 
     const details = [
         ["Category", investigation.category],
@@ -60,19 +63,16 @@ export default function InvestigationTabs({
 
             <div className="grid grid-cols-1 gap-12 pt-12 lg:grid-cols-[1fr_320px]">
 
-                {/* MAIN */}
+                {/* MAIN — every panel is in the HTML (inactive ones `hidden`) so search
+                    engines can read the full report in every language, not just the video */}
                 <div className="min-w-0">
-                    {activeTab === "watch" && video ? (
-                        <>
-                            <div className="relative aspect-video w-full overflow-hidden bg-neutral-900">
-                                <iframe
-                                    src={`https://www.youtube-nocookie.com/embed/${video.id}`}
-                                    title={video.title ?? investigation.title}
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                    className="absolute inset-0 h-full w-full"
-                                />
-                            </div>
+                    {video && (
+                        <div hidden={activeTab !== "watch"}>
+                            <YouTubeEmbed
+                                id={video.id}
+                                title={video.title ?? investigation.title}
+                                thumbnail={investigation.thumbnail}
+                            />
 
                             <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.15em]">
@@ -99,14 +99,24 @@ export default function InvestigationTabs({
                                     </a>
                                 </div>
                             </div>
-                        </>
-                    ) : activeDocument ? (
-                        <DocumentReader
-                            document={activeDocument}
-                            languages={documents.map((doc) => doc.language)}
-                            onLanguageChange={setLanguage}
-                        />
-                    ) : (
+
+                            {video.description && (
+                                <p className="mt-8 max-w-3xl text-[16px] leading-[1.7] text-[#c9c9c9]">{video.description}</p>
+                            )}
+                        </div>
+                    )}
+
+                    {documents.map((doc) => (
+                        <div key={doc.language} hidden={activeTab !== "read" || doc.language !== language}>
+                            <DocumentReader
+                                document={doc}
+                                languages={documents.map((d) => d.language)}
+                                onLanguageChange={setLanguage}
+                            />
+                        </div>
+                    ))}
+
+                    {activeTab === "read" && documents.length === 0 && (
                         <p className="py-20 text-center text-[16px] uppercase text-white/40">The report is coming soon.</p>
                     )}
                 </div>

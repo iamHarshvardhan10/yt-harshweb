@@ -86,7 +86,28 @@
       "Bash(sed -i 's|<p className=\"mt-2 text-\\\\[20px\\\\] transition-colors|<p className=\"mt-2 break-all text-[18px] transition-colors md:text-[20px]|' \"app/\\(frontend\\)/contact/page.tsx\")",
       "PowerShell($sp = \"C:\\\\Users\\\\HARSHV~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--projects-yt\\\\315a25b7-59f8-4840-bdc0-c83344bfe49d\\\\scratchpad\"; node \"$sp\\\\shot.mjs\" \"$sp\\\\shots\" 390 / /about /contact /newsletter /videos /investigations; node \"$sp\\\\shot.mjs\" \"$sp\\\\shots\" 768 /; node \"$sp\\\\shot.mjs\" \"$sp\\\\shots\" 1280 /)",
       "PowerShell($sp = \"C:\\\\Users\\\\HARSHV~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--projects-yt\\\\315a25b7-59f8-4840-bdc0-c83344bfe49d\\\\scratchpad\"; node \"$sp\\\\shot.mjs\" \"$sp\\\\shots\" 390 / /newsletter; node \"$sp\\\\shot.mjs\" \"$sp\\\\shots\" 1280 /)",
-      "PowerShell(foreach \\($port in 3123, 9333\\) { Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }; \"done\")"
+      "PowerShell(foreach \\($port in 3123, 9333\\) { Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }; \"done\")",
+      "PowerShell($files = \"app/robots.ts\",\"app/\\(frontend\\)/layout.tsx\",\"app/\\(frontend\\)/page.tsx\",\"app/\\(frontend\\)/about/page.tsx\",\"app/\\(frontend\\)/contact/page.tsx\",\"app/\\(frontend\\)/videos/page.tsx\",\"app/\\(frontend\\)/investigations/page.tsx\",\"app/\\(frontend\\)/investigations/[slug]/page.tsx\",\"app/\\(frontend\\)/newsletter/page.tsx\",\"app/\\(frontend\\)/newsletter/issues/[id]/page.tsx\",\"app/\\(frontend\\)/newsletter/status/page.tsx\",\"app/\\(frontend\\)/newsletter/unsubscribe/page.tsx\",\"app/\\(auth\\)/layout.tsx\",\"app/dashboard/layout.tsx\",\"next.config.ts\",\"proxy.ts\",\"lib/maintenance.ts\"; foreach \\($f in $files\\) { \"===== $f\"; Get-Content -LiteralPath $f -Raw })",
+      "PowerShell($files = \"components/common/PageHero.tsx\",\"components/core/Home/Hero.tsx\",\"components/core/Navbar.tsx\",\"components/core/Footer.tsx\",\"components/core/Videos/VideoLibrary.tsx\",\"components/core/Investigations/InvestigationTabs.tsx\",\"components/core/Investigations/InvestigationLibrary.tsx\",\"components/core/Home/FeatureVideos.tsx\",\"components/core/Home/Faq.tsx\",\"components/common/SmoothScroll.tsx\",\"lib/settings.ts\"; foreach \\($f in $files\\) { \"===== $f\"; Get-Content -LiteralPath $f -Raw })",
+      "PowerShell($files = \"lib/videos/queries.ts\",\"lib/videos/shared.ts\",\"lib/investigations/queries.ts\",\"lib/investigations/routes.ts\",\"lib/investigations/shared.ts\",\"lib/youtube.ts\",\"lib/newsletter/queries.ts\",\"lib/newsletter/revalidate.ts\",\"lib/home/revalidate.ts\",\"components/core/Investigations/format.ts\",\"components/core/Home/About.tsx\",\"lib/format.ts\"; foreach \\($f in $files\\) { \"===== $f\"; Get-Content -LiteralPath $f -Raw })",
+      "PowerShell($d=\"node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/01-metadata\"; Get-Content \"$d/sitemap.md\" -TotalCount 90; \"=====OG\"; Select-String -Path \"$d/opengraph-image.md\" -Pattern \"ImageResponse|next/og|route segment|Good to know|alt|size|contentType|params|runtime|dynamic|cache\" | Select-Object -First 50 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
+      "PowerShell($d=\"node_modules/next/dist/docs/01-app/03-api-reference\"; Select-String -Path \"$d/02-components/image.md\" -Pattern \"priority|preload|fetchPriority\" | Select-Object -First 25 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }; \"=====NF\"; Select-String -Path \"$d/03-file-conventions/not-found.md\" -Pattern \"global-not-found|multiple root|root layout|group\" | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" }; \"=====about\"; Select-String -Path lib/about/queries.ts,lib/about/defaults.ts -Pattern \"heroImage\" | ForEach-Object { \"$\\($_.Filename\\):$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
+      "PowerShell(npx eslint app components lib proxy.ts 2>&1)",
+      "PowerShell(npx next typegen 2>&1 | Select-Object -Last 5; npx tsc --noEmit -p . 2>&1 | Select-Object -First 20; \"tsc exit: $LASTEXITCODE\")",
+      "PowerShell(npx next build --webpack 2>&1)",
+      "PowerShell(npx next start -p 3100)",
+      "Bash(seq 1 30)",
+      "Bash(curl -s -o /dev/null http://localhost:3100/robots.txt)",
+      "Bash(break)",
+      "Bash(sleep 1)",
+      "Bash(echo \"== robots\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type} %{size_download}\\\\n\" http://localhost:3100/og)",
+      "Bash(curl -s http://localhost:3100/)",
+      "Bash(curl -s http://localhost:3100/videos)",
+      "Bash(curl -s http://localhost:3100/investigations)",
+      "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-Object -First 20; \"tsc exit: $LASTEXITCODE\"; npx eslint \"components/core/Investigations\" \"components/common\" \"app/\\(frontend\\)\" app/sitemap.ts app/og app/manifest.ts app/global-not-found.tsx lib/seo.ts lib/social.ts 2>&1 | Select-Object -Last 20; \"eslint exit: $LASTEXITCODE\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -Confirm:$false }; \"stopped\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -Confirm:$false }; git status --short)"
     ]
   }
 }

@@ -18,6 +18,8 @@ export async function getVideoSettings(): Promise<Record<string, VideoWebsiteSet
 export function revalidateVideoPages() {
     revalidatePath("/");
     revalidatePath("/videos");
+    revalidatePath("/videos/[id]", "page");
+    revalidatePath("/sitemap.xml");
 }
 
 type ChannelVideos = {

@@ -444,6 +444,22 @@ export async function getVideosByIds(ids: string[]): Promise<Map<string, YouTube
     }
 }
 
+/**
+ * A video's full description, as written on YouTube, for its page on the
+ * website (cards only get the short version). null when it can't be read.
+ */
+export async function getVideoDescription(id: string): Promise<string | null> {
+    if (!process.env.YOUTUBE_API_KEY) return null;
+
+    try {
+        const res = await youtube<{ items?: { snippet: { description?: string } }[] }>("videos", { part: "snippet", id });
+        return res.items?.[0]?.snippet.description?.trim() || null;
+    } catch (err) {
+        console.error("[youtube] description lookup failed:", err);
+        return null;
+    }
+}
+
 export function getYouTubeOverview(): Promise<YouTubeResult> {
     return withChannel("overview", async (channel) => {
         const { ids } = await playlistVideoIds(channel.contentDetails.relatedPlaylists.uploads, RECENT_VIDEO_COUNT);

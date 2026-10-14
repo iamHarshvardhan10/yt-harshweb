@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // app/global-not-found.tsx: a branded 404 for URLs outside every root layout
+    globalNotFound: true,
+  },
   images: {
     // Media uploaded from the dashboard is served from Cloudinary
     remotePatterns: [

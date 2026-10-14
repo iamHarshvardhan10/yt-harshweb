@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
 import AnimatedDotText from "@/components/common/AnimateDot";
@@ -8,10 +10,11 @@ import Metrics from "@/components/core/Home/Metrics";
 import { getAboutPageData } from "@/lib/about/queries";
 import { getHomePageData } from "@/lib/home/queries";
 
-export const metadata: Metadata = {
-    title: "About - Harsh Bhosale",
-    description: "Who we are, why we investigate, and how we work.",
-};
+export const metadata: Metadata = pageMetadata({
+    title: "About",
+    description: "Who we are, why we investigate, and how we work: the research process behind every Harsh Bhosale video and report.",
+    path: "/about",
+});
 
 // Content is managed from /dashboard/about. The About highlights and Metrics
 // blocks are shared with the home page and edited from /dashboard/home.
@@ -38,9 +41,9 @@ export default async function AboutPage() {
                     <AnimatedDotText text={page.processTag} className="mb-4" />
 
                     <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                        <h3 className="text-[32px] uppercase leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] md:w-[60%]">
+                        <h2 className="text-[32px] uppercase leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] md:w-[60%]">
                             {page.processTitle}
-                        </h3>
+                        </h2>
                         <p className="text-[16px] uppercase leading-[22.4px] tracking-[-0.16px] text-[#c9c9c9] md:w-[30%]">
                             {page.processDesc}
                         </p>
@@ -51,7 +54,7 @@ export default async function AboutPage() {
                             {steps.map((step, index) => (
                                 <div key={step.id} className="border-b border-white/10 py-10 md:border-b-0 md:border-r md:px-8 md:last:border-r-0 md:first:pl-0">
                                     <span className="text-[16px] uppercase text-[#82CFFF]">{String(index + 1).padStart(2, "0")}</span>
-                                    <h4 className="mt-6 text-[26px] uppercase tracking-[-1px] md:text-[32px]">{step.title}</h4>
+                                    <h3 className="mt-6 text-[26px] uppercase tracking-[-1px] md:text-[32px]">{step.title}</h3>
                                     <p className="mt-4 text-[16px] uppercase leading-[22.4px] text-[#c9c9c9]">{step.description}</p>
                                 </div>
                             ))}

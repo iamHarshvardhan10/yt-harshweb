@@ -26,7 +26,9 @@ const chivoMono = Chivo_Mono({
 
 export const metadata: Metadata = {
     title: "Harsh Bhosale - YouTube",
-    description: "Stories that deserves a closer look",
+    description: "Stories that deserve a closer look",
+    // Private admin area — never in search results
+    robots: { index: false, follow: false },
 };
 
 export default function RootLayout({

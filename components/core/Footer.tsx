@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getChannelLink } from "@/lib/youtube";
+import { getSocialLinks } from "@/lib/social";
 
 const footerLinks = {
     explore: [
@@ -10,11 +10,8 @@ const footerLinks = {
         { name: "Newsletter", href: "/newsletter" },
         { name: "Contact", href: "/contact" },
     ],
-    social: [
-        { name: "YouTube", href: getChannelLink()?.url ?? "https://www.youtube.com" },
-        { name: "Instagram", href: "#" },
-        { name: "X", href: "#" },
-    ],
+    // Only profiles with an address (YOUTUBE_CHANNEL, INSTAGRAM_URL, X_URL)
+    social: getSocialLinks(),
 };
 
 export default function Footer() {
@@ -69,7 +66,7 @@ export default function Footer() {
                                     key={link.name}
                                     href={link.href}
                                     target="_blank"
-                                    rel="noopener noreferrer"
+                                    rel="me noopener noreferrer"
                                     className="w-fit text-sm text-white/60 transition hover:text-white"
                                 >
                                     {link.name}

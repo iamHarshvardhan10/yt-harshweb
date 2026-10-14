@@ -23,9 +23,7 @@ export default function FeaturedVideos({ section, videos }: { section: HomeSecti
 
                     {videos.map((video, index) => (
                         <Link
-                            href={video.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={`/videos/${video.id}`}
                             key={video.id}
                             className="group block"
                         >

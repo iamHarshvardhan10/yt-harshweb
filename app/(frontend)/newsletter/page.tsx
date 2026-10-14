@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
 import AnimatedDotText from "@/components/common/AnimateDot";
@@ -8,10 +10,11 @@ import { getActiveSubscriberCount, getPublishedIssues, issueNumbers } from "@/li
 import { excerpt } from "@/lib/newsletter/shared";
 import { compact } from "@/lib/format";
 
-export const metadata: Metadata = {
-    title: "Newsletter - Harsh Bhosale",
-    description: "The story behind the story, delivered to your inbox every week.",
-};
+export const metadata: Metadata = pageMetadata({
+    title: "Newsletter",
+    description: "The story behind the story: new investigations, behind-the-scenes research and the sources we use, in your inbox every Friday. Free.",
+    path: "/newsletter",
+});
 
 const benefits = [
     {
@@ -89,15 +92,15 @@ export default async function NewsletterPage() {
             {/* WHAT YOU GET */}
             <section className="bg-background px-6 py-20 text-white md:px-26.5">
                 <AnimatedDotText text="What You Get" className="mb-4" />
-                <h3 className="text-[32px] uppercase leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] md:w-[60%]">
+                <h2 className="text-[32px] uppercase leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] md:w-[60%]">
                     Every issue, three things.
-                </h3>
+                </h2>
 
                 <div className="mt-16 grid grid-cols-1 border-t border-white/10 md:grid-cols-3">
                     {benefits.map((item) => (
                         <div key={item.id} className="border-b border-white/10 py-10 md:border-b-0 md:border-r md:px-8 md:first:pl-0 md:last:border-r-0">
                             <span className="text-[16px] uppercase text-[#82CFFF]">{item.id}</span>
-                            <h4 className="mt-6 text-[26px] uppercase tracking-[-1px] md:text-[32px]">{item.title}</h4>
+                            <h3 className="mt-6 text-[26px] uppercase tracking-[-1px] md:text-[32px]">{item.title}</h3>
                             <p className="mt-4 text-[16px] uppercase leading-[22.4px] text-[#c9c9c9]">{item.description}</p>
                         </div>
                     ))}

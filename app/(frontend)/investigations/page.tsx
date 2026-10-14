@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo";
+
 import PageHero from "@/components/common/PageHero";
 import InvestigationLibrary from "@/components/core/Investigations/InvestigationLibrary";
 import { getPublishedInvestigations } from "@/lib/investigations/queries";
 
-export const metadata: Metadata = {
-    title: "Investigations - Harsh Bhosale",
-    description: "In-depth investigations to watch, with full research reports to read in English and Hindi.",
-};
+export const metadata: Metadata = pageMetadata({
+    title: "Investigations",
+    description: "In-depth investigations to watch, with full research reports to read in English and Hindi and every source behind them.",
+    path: "/investigations",
+});
 
 // Content is managed from /dashboard/investigations
 

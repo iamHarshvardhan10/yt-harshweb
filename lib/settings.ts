@@ -7,7 +7,7 @@ export const SITE_SETTINGS_ID = "site";
 
 export const defaultSiteSettings = {
     siteTitle: "Harsh Bhosale - YouTube",
-    siteDescription: "Stories that deserves a closer look",
+    siteDescription: "Stories that deserve a closer look",
 };
 
 const withMedia = { logo: true, favicon: true } as const;
@@ -33,6 +33,20 @@ export type SiteSettingsWithMedia = Awaited<ReturnType<typeof getSiteSettings>>;
  */
 export async function getSiteUrl(requestOrigin: string) {
     const configured = process.env.SITE_URL || (await getSiteSettings()).siteUrl || requestOrigin;
+    return configured.replace(/\/$/, "");
+}
+
+/**
+ * Public site address for canonical links, the sitemap and structured data:
+ * SITE_URL env, then the Site URL from Settings, then the Vercel production
+ * domain. Falls back to localhost so metadata never breaks in development.
+ */
+export async function getPublicSiteUrl() {
+    const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    const configured =
+        process.env.SITE_URL ||
+        (await getSiteSettings()).siteUrl ||
+        (vercel ? `https://${vercel}` : "http://localhost:3000");
     return configured.replace(/\/$/, "");
 }
 

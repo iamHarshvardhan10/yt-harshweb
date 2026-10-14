@@ -33,9 +33,9 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-    // Everything except API routes, Next.js internals, static files and the
-    // pages that must keep working during maintenance
+    // Everything except API routes, Next.js internals, static files, the share
+    // image and the pages that must keep working during maintenance
     matcher: [
-        "/((?!api|_next/static|_next/image|login|invite|maintenance|robots.txt|favicon.ico|.*\\.[a-zA-Z0-9]+$).*)",
+        "/((?!api|_next/static|_next/image|og$|login|invite|maintenance|robots.txt|favicon.ico|.*\\.[a-zA-Z0-9]+$).*)",
     ],
 };

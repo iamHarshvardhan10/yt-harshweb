@@ -21,7 +21,12 @@ export default function VideoLibrary({ videos, channelUrl }: { videos: PublicVid
 
     const tabItems = videos.filter((video) => video.type === activeTab);
     const categories = ["All", ...new Set(tabItems.flatMap((video) => video.category ?? []))];
-    const items = tabItems.filter((video) => category === "All" || video.category === category);
+    const inCategory = (video: PublicVideo) => category === "All" || video.category === category;
+
+    // Both grids are always in the HTML (the inactive one `hidden`) so search engines find every page
+    const longItems = videos.filter((video) => video.type === "video" && inCategory(video));
+    const shortItems = videos.filter((video) => video.type === "short" && inCategory(video));
+    const items = activeTab === "video" ? longItems : shortItems;
 
     return (
         <section className="bg-background px-6 pb-30 pt-10 text-white md:px-20 lg:px-49">
@@ -68,13 +73,11 @@ export default function VideoLibrary({ videos, channelUrl }: { videos: PublicVid
 
 
             {/* GRID */}
-            {activeTab === "video" ? (
+            <div hidden={activeTab !== "video"}>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-10 pt-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {items.map((video) => (
+                    {longItems.map((video) => (
                         <Link
-                            href={video.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={`/videos/${video.id}`}
                             key={video.id}
                             className="group block"
                         >
@@ -114,13 +117,13 @@ export default function VideoLibrary({ videos, channelUrl }: { videos: PublicVid
                         </Link>
                     ))}
                 </div>
-            ) : (
+            </div>
+
+            <div hidden={activeTab !== "short"}>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-10 pt-16 sm:grid-cols-3 lg:grid-cols-5">
-                    {items.map((short) => (
+                    {shortItems.map((short) => (
                         <Link
-                            href={short.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            href={`/videos/${short.id}`}
                             key={short.id}
                             className="group block"
                         >
@@ -147,7 +150,7 @@ export default function VideoLibrary({ videos, channelUrl }: { videos: PublicVid
                         </Link>
                     ))}
                 </div>
-            )}
+            </div>
 
             {items.length === 0 && (
                 <p className="py-20 text-center text-[16px] uppercase text-white/40">Nothing here yet.</p>

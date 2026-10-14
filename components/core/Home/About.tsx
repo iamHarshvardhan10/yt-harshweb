@@ -22,7 +22,7 @@ export default function About({
     return (
         <div className="flex items-center justify-center flex-col text-center py-20 bg-background text-white">
             {section.eyebrow && <AnimatedDotText text={section.eyebrow} />}
-            <h3 className="px-6 text-[32px] md:text-[44px] uppercase">{section.title}</h3>
+            <h2 className="px-6 text-[32px] md:text-[44px] uppercase">{section.title}</h2>
             {section.description && (
                 <p className="w-full px-6 md:w-[70%] lg:w-[40%] uppercase text-[#c9c9c9]">{section.description}</p>
             )}
@@ -48,9 +48,9 @@ export default function About({
                         <div key={item.id} className={`w-full xl:absolute xl:w-[300px] ${slots[index]}`}>
                             <div className="flex flex-col items-center text-center">
 
-                                <h4 className="text-[32px] leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] uppercase">
+                                <h3 className="text-[32px] leading-9 tracking-[-1.5px] md:text-[44px] md:leading-[48.4px] md:tracking-[-2.2px] uppercase">
                                     {item.title}
-                                </h4>
+                                </h3>
 
                                 <span className="text-[32px] md:text-[44px] leading-none tracking-[-2.2px]">
                                     {String(index + 1).padStart(2, "0")}

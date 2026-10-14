@@ -2,12 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { cache } from "react";
+
 import { prisma } from "@/lib/prisma";
 import { issueNumbers } from "@/lib/newsletter/queries";
 import { bodyParagraphs, excerpt } from "@/lib/newsletter/shared";
+import { getPublicSiteUrl } from "@/lib/settings";
+import { articleSchema, breadcrumbSchema, DEFAULT_OG_IMAGE, pageMetadata } from "@/lib/seo";
+import JsonLd from "@/components/common/JsonLd";
 
-const getIssue = (id: string) =>
-    prisma.campaign.findFirst({ where: { id, status: "SENT", showOnWebsite: true } });
+// Cached per request — metadata and page share one query
+const getIssue = cache((id: string) =>
+    prisma.campaign.findFirst({ where: { id, status: "SENT", showOnWebsite: true } }));
 
 const issueDate = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "long", year: "numeric", timeZone: "Asia/Kolkata" });
 
@@ -19,17 +25,43 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/newsletter/issues/[id]">): Promise<Metadata> {
     const issue = await getIssue((await params).id);
     if (!issue) return { title: "Issue not found" };
-    return { title: `${issue.subject} - Newsletter`, description: issue.preview || excerpt(issue.body, 160) };
+    return pageMetadata({
+        title: issue.subject,
+        description: issue.preview || excerpt(issue.body, 155),
+        path: `/newsletter/issues/${issue.id}`,
+        article: { publishedTime: issue.sentAt?.toISOString(), modifiedTime: issue.updatedAt.toISOString() },
+    });
 }
 
 /** Web version of a sent newsletter ("View in browser"). */
 export default async function NewsletterIssuePage({ params }: PageProps<"/newsletter/issues/[id]">) {
     const { id } = await params;
-    const [issue, numbers] = await Promise.all([getIssue(id), issueNumbers()]);
+    const [issue, numbers, origin] = await Promise.all([getIssue(id), issueNumbers(), getPublicSiteUrl()]);
     if (!issue) notFound();
+
+    const path = `/newsletter/issues/${issue.id}`;
 
     return (
         <article className="bg-background px-6 pb-30 pt-40 text-white md:px-20 lg:px-49">
+            <JsonLd
+                data={[
+                    articleSchema(origin, {
+                        path,
+                        headline: issue.subject,
+                        description: issue.preview || excerpt(issue.body, 155),
+                        image: DEFAULT_OG_IMAGE.url,
+                        datePublished: issue.sentAt?.toISOString(),
+                        dateModified: issue.updatedAt.toISOString(),
+                        section: "Newsletter",
+                    }),
+                    breadcrumbSchema(origin, [
+                        { name: "Home", path: "/" },
+                        { name: "Newsletter", path: "/newsletter" },
+                        { name: issue.subject, path },
+                    ]),
+                ]}
+            />
+
             <Link href="/newsletter" className="text-[12px] uppercase tracking-[0.15em] text-white/40 transition-colors hover:text-white">
                 ← Newsletter
             </Link>

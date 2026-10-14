@@ -1,4 +1,5 @@
 import AnimatedDotText from "@/components/common/AnimateDot";
+import Image from "next/image";
 import Link from "next/link";
 import type { HomePageData } from "@/lib/home/queries";
 
@@ -8,8 +9,20 @@ export default function Hero({ hero }: { hero: HomePageData["hero"] }) {
     const backgroundImage = hero.backgroundImage?.secureUrl ?? "/hero.webp";
 
     return (
-        <section className="bg-background text-white min-h-svh relative overflow-hidden flex items-center px-6 pt-24 pb-20 md:px-20 lg:items-start lg:pt-60 bg-cover bg-center bg-no-repeat after:content-[''] after:absolute after:inset-x-10 after:bottom-0 after:right-0 after:h-50 after:bg-linear-to-t  after:from-black after:via-black/70 after:to-transparent after:pointer-events-none"
-            style={showVideo ? undefined : { backgroundImage: `url('${backgroundImage}')` }}>
+        <section className="bg-background text-white min-h-svh relative overflow-hidden flex items-center px-6 pt-24 pb-20 md:px-20 lg:items-start lg:pt-60 after:content-[''] after:absolute after:inset-x-10 after:bottom-0 after:right-0 after:h-50 after:bg-linear-to-t  after:from-black after:via-black/70 after:to-transparent after:pointer-events-none">
+
+            {/* A real <img> (not a CSS background) so the browser fetches the largest paint early */}
+            {!showVideo && (
+                <Image
+                    src={backgroundImage}
+                    alt=""
+                    fill
+                    sizes="100vw"
+                    loading="eager"
+                    fetchPriority="high"
+                    className="object-cover object-center"
+                />
+            )}
 
             {showVideo && (
                 <video

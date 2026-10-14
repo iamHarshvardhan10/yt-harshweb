@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 
+import { pageMetadata } from "@/lib/seo";
+
 import PageHero from "@/components/common/PageHero";
 import ContactUs from "@/components/core/Home/ContactUs";
 import Faqs from "@/components/core/Home/Faq";
 import { getHomePageData } from "@/lib/home/queries";
 import { getChannelLink } from "@/lib/youtube";
 
-export const metadata: Metadata = {
-    title: "Contact - Harsh Bhosale",
-    description: "Questions, story tips and collaborations.",
-};
+export const metadata: Metadata = pageMetadata({
+    title: "Contact",
+    description: "Send Harsh Bhosale a question, a story tip or a collaboration idea. Every message is read, and tips can lead to the next investigation.",
+    path: "/contact",
+});
 
 const youtube = getChannelLink();
 

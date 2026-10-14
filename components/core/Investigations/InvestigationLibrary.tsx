@@ -65,8 +65,9 @@ export default function InvestigationLibrary({ investigations }: { investigation
             </div>
 
 
-            {/* WATCH */}
-            {activeTab === "watch" && (
+            {/* WATCH — both lists are always in the HTML (the inactive one `hidden`)
+                so search engines find report-only investigations too */}
+            <div hidden={activeTab !== "watch"}>
                 <div className="grid grid-cols-1 gap-x-6 gap-y-10 pt-6 sm:grid-cols-2 lg:grid-cols-3">
                     {watchItems.map((item) => (
                         <Link key={item.slug} href={`/investigations/${item.slug}`} className="group block">
@@ -107,11 +108,11 @@ export default function InvestigationLibrary({ investigations }: { investigation
                         </Link>
                     ))}
                 </div>
-            )}
+            </div>
 
 
             {/* READ */}
-            {activeTab === "read" && (
+            <div hidden={activeTab !== "read"}>
                 <div className="pt-6">
                     {readItems.map((item, index) => (
                         <div
@@ -164,7 +165,7 @@ export default function InvestigationLibrary({ investigations }: { investigation
                         </div>
                     ))}
                 </div>
-            )}
+            </div>
 
             {visible.length === 0 && (
                 <p className="py-20 text-center text-[16px] uppercase text-white/40">Nothing here yet.</p>
