@@ -10,7 +10,7 @@ import { getChannelLink } from "@/lib/youtube";
 
 export const metadata: Metadata = pageMetadata({
     title: "Contact",
-    description: "Send Harsh Bhosale a question, a story tip or a collaboration idea. Every message is read, and tips can lead to the next investigation.",
+    description: "Send Harshwardhan Bhosale a question, a story tip or a collaboration idea. Every message is read, and tips can lead to the next investigation.",
     path: "/contact",
 });
 

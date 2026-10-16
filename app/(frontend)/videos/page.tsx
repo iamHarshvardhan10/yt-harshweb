@@ -8,7 +8,7 @@ import { getPublicVideos } from "@/lib/videos/queries";
 
 export const metadata: Metadata = pageMetadata({
     title: "Videos",
-    description: "Watch every Harsh Bhosale video: long-form investigations, explainers and Shorts that get straight to the point.",
+    description: "Watch every Harshwardhan Bhosale video: long-form investigations, explainers and Shorts that get straight to the point.",
     path: "/videos",
 });
 

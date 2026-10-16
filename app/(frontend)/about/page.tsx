@@ -12,7 +12,7 @@ import { getHomePageData } from "@/lib/home/queries";
 
 export const metadata: Metadata = pageMetadata({
     title: "About",
-    description: "Who we are, why we investigate, and how we work: the research process behind every Harsh Bhosale video and report.",
+    description: "Who we are, why we investigate, and how we work: the research process behind every Harshwardhan Bhosale video and report.",
     path: "/about",
 });
 

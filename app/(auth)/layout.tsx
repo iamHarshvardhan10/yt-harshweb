@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Sign in - Harsh Bhosale",
+    title: "Sign in - Harshwardhan Bhosale",
     robots: { index: false, follow: false },
 };
 

@@ -27,7 +27,7 @@ export default function Footer() {
                             href="/"
                             className="text-lg font-semibold tracking-tight"
                         >
-                            HARSH BHOSALE
+                            HARSHWARDHAN BHOSALE
                         </Link>
 
                         <p className="mt-3 max-w-xs text-sm leading-6 text-white/40">
@@ -78,7 +78,7 @@ export default function Footer() {
 
                 {/* Bottom */}
                 <div className="flex flex-col gap-3 border-t border-white/10 py-5 text-xs text-white/30 sm:flex-row sm:items-center sm:justify-between">
-                    <p>© 2026 Harsh Bhosale. All rights reserved.</p>
+                    <p>© 2026 Harshwardhan Bhosale. All rights reserved.</p>
 
                     <div className="flex gap-5">
                         <Link href="/privacy" className="hover:text-white">

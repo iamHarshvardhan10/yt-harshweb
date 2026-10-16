@@ -25,7 +25,7 @@ const chivoMono = Chivo_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Harsh Bhosale - YouTube",
+    title: "Harshwardhan Bhosale - YouTube",
     description: "Stories that deserve a closer look",
     // Private admin area — never in search results
     robots: { index: false, follow: false },

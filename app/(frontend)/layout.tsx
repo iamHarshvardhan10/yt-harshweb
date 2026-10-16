@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const bing = process.env.BING_SITE_VERIFICATION;
 
     return {
-        // Pages set only their own part: "Videos" → "Videos | Harsh Bhosale"
+        // Pages set only their own part: "Videos" → "Videos | Harshwardhan Bhosale"
         title: { default: settings.siteTitle, template: `%s | ${SITE_NAME}` },
         description: settings.siteDescription,
         metadataBase: new URL(siteUrl),

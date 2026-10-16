@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
     title: "Terms of Use",
-    description: "The terms for using the Harsh Bhosale website: sharing and quoting our work, how we handle corrections, and links to other sites.",
+    description: "The terms for using the Harshwardhan Bhosale website: sharing and quoting our work, how we handle corrections, and links to other sites.",
     path: "/terms",
 });
 
@@ -20,7 +20,7 @@ const sections: LegalSection[] = [
     {
         heading: "Our content",
         paragraphs: [
-            "The videos, reports, text, images and design on this site belong to Harsh Bhosale unless we say otherwise. You are welcome to share links to any page, and to quote short passages with clear credit and a link back to the original.",
+            "The videos, reports, text, images and design on this site belong to Harshwardhan Bhosale unless we say otherwise. You are welcome to share links to any page, and to quote short passages with clear credit and a link back to the original.",
             "Republishing whole reports, videos or images, or using them commercially, needs our written permission first.",
         ],
     },

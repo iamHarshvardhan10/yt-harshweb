@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 export const SITE_SETTINGS_ID = "site";
 
 export const defaultSiteSettings = {
-    siteTitle: "Harsh Bhosale - YouTube",
+    siteTitle: "Harshwardhan Bhosale - YouTube",
     siteDescription: "Stories that deserve a closer look",
 };
 

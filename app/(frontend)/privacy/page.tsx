@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
     title: "Privacy Policy",
-    description: "What information the Harsh Bhosale website and newsletter collect, why, how long it is kept, and how to have it removed.",
+    description: "What information the Harshwardhan Bhosale website and newsletter collect, why, how long it is kept, and how to have it removed.",
     path: "/privacy",
 });
 
@@ -14,7 +14,7 @@ const sections: LegalSection[] = [
     {
         heading: "Who we are",
         paragraphs: [
-            "This website publishes the investigations, videos and newsletter of Harsh Bhosale. When this policy says \"we\" or \"us\", it means the Harsh Bhosale team. You can reach us about anything in this policy at hello@harshbhosale.com.",
+            "This website publishes the investigations, videos and newsletter of Harshwardhan Bhosale. When this policy says \"we\" or \"us\", it means the Harshwardhan Bhosale team. You can reach us about anything in this policy at hello@harshbhosale.com.",
         ],
     },
     {

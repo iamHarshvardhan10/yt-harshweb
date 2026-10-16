@@ -10,7 +10,7 @@ import { videoDate, type PublicVideo } from "@/lib/videos/shared";
 export default function FeaturedVideos({ section, videos }: { section: HomeSectionData; videos: PublicVideo[] }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
-            <div className="flex flex-col items-center justify-center mt-20 px-6 md:mt-30">
+            <div className="flex flex-col items-center justify-center pt-20 px-6 md:pt-30">
                 {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
                 <h2 className="uppercase text-3xl md:text-4xl w-full md:w-[60%] lg:w-[30%] text-center">{section.title}</h2>
                 {section.description && (

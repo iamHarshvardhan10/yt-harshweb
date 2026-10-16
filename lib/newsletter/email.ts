@@ -9,14 +9,14 @@ import { bodyParagraphs } from "@/lib/newsletter/shared";
  * Newsletter email — server only.
  *
  * Env (besides the Gmail settings in lib/mail.ts):
- *   NEWSLETTER_FROM_NAME   sender name readers see (default "Harsh Bhosale")
+ *   NEWSLETTER_FROM_NAME   sender name readers see (default "Harshwardhan Bhosale")
  *   SITE_URL               public site address for links in emails (else Settings → Website → Site URL, else the request's)
  *
  * Gmail allows roughly 500 recipients a day on a personal account — fine for a
  * small list; move to a bulk provider (e.g. Resend) as the list grows.
  */
 
-const fromName = () => process.env.NEWSLETTER_FROM_NAME || "Harsh Bhosale";
+const fromName = () => process.env.NEWSLETTER_FROM_NAME || "Harshwardhan Bhosale";
 
 export const newToken = () => randomBytes(24).toString("base64url");
 

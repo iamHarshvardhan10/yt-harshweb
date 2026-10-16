@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps<"/videos/[id]">): P
 
     return pageMetadata({
         title: video.title,
-        description: metaDescription(video.description || `Watch "${video.title}" by Harsh Bhosale.`),
+        description: metaDescription(video.description || `Watch "${video.title}" by Harshwardhan Bhosale.`),
         path: `/videos/${video.id}`,
         image: video.thumbnailHd,
     });

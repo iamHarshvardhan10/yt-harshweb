@@ -33,14 +33,14 @@ import {
 
 const data = {
   user: {
-    name: "Harsh Bhosale",
+    name: "Harshwardhan Bhosale",
     email: "Creator",
     avatar: "/avatars/harsh.jpg",
   },
 
   teams: [
     {
-      name: "Harsh Bhosale",
+      name: "Harshwardhan Bhosale",
       logo: <LayoutDashboard />,
       plan: "Creator Studio",
     },

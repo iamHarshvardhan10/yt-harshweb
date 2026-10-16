@@ -52,7 +52,7 @@
 
 body {
   font-family: var(--font-mono);
-  /* background-color: #000000; */
+  background-color: #000000;
   /* color: #ffff; */
   margin: 0;
   /* Safety net so a wide element can never make phones scroll sideways */

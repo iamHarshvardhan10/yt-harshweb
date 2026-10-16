@@ -107,7 +107,9 @@
       "Bash(curl -s http://localhost:3100/investigations)",
       "PowerShell(npx tsc --noEmit -p . 2>&1 | Select-Object -First 20; \"tsc exit: $LASTEXITCODE\"; npx eslint \"components/core/Investigations\" \"components/common\" \"app/\\(frontend\\)\" app/sitemap.ts app/og app/manifest.ts app/global-not-found.tsx lib/seo.ts lib/social.ts 2>&1 | Select-Object -Last 20; \"eslint exit: $LASTEXITCODE\")",
       "PowerShell(Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -Confirm:$false }; \"stopped\")",
-      "PowerShell(Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -Confirm:$false }; git status --short)"
+      "PowerShell(Get-NetTCPConnection -LocalPort 3100 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -Confirm:$false }; git status --short)",
+      "Bash(sed -i 's/flex flex-col items-center justify-center mt-20 px-6 md:mt-30/flex flex-col items-center justify-center pt-20 px-6 md:pt-30/' components/core/Home/FeatureVideos.tsx components/core/Home/Faq.tsx components/core/Home/ContactUs.tsx)",
+      "Bash(sed -i 's|  /\\\\* background-color: #000000; \\\\*/|  background-color: #000000;|' app/globals.css)"
     ]
   }
 }

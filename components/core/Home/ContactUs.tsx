@@ -13,7 +13,7 @@ import type { HomeSectionData } from "@/lib/home/queries";
 export default function ContactUs({ section }: { section: HomeSectionData }) {
     return (
         <div className="min-h-screen relative bg-background text-white">
-            <div className="flex flex-col items-center justify-center mt-20 px-6 md:mt-30">
+            <div className="flex flex-col items-center justify-center pt-20 px-6 md:pt-30">
                 {section.eyebrow && <AnimatedDotText text={section.eyebrow} className="mb-2" />}
                 <h2 className="uppercase text-3xl md:text-4xl w-full text-center">{section.title}</h2>
                 {section.description && (

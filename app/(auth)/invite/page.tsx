@@ -6,7 +6,7 @@ import { MIN_PASSWORD_LENGTH } from "@/lib/auth/password"
 import AcceptInviteForm from "./AcceptInviteForm"
 
 export const metadata: Metadata = {
-    title: "Accept invite - Harsh Bhosale",
+    title: "Accept invite - Harshwardhan Bhosale",
     robots: { index: false, follow: false },
 }
 

@@ -43,7 +43,7 @@ export default function ChannelPage() {
         React.useState(false)
 
     const [channelName, setChannelName] =
-        React.useState("Harsh Bhosale")
+        React.useState("Harshwardhan Bhosale")
 
     const [handle, setHandle] =
         React.useState("@harshbhosale")
